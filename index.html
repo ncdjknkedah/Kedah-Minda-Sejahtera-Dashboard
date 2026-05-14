@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KMS2026 Dashboard | Program Jelajah Kedah Minda Sejahtera</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar/Header -->
+        <header class="header">
+            <div class="logo-section">
+                <img src="logo.png" alt="KMS2026 Logo" class="logo-img">
+                <div class="brand-text">
+                    <h1>Kedah Minda Sejahtera</h1>
+                    <p>Dashboard Pemantauan Program Jelajah 2026</p>
+                </div>
+            </div>
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="districtFilter">Daerah</label>
+                    <select id="districtFilter">
+                        <option value="all">Semua Daerah</option>
+                    </select>
+                </div>
+                <button id="refreshBtn" class="refresh-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                    Refresh
+                </button>
+            </div>
+        </header>
+
+        <main class="content">
+            <!-- KPI Cards -->
+            <section class="kpi-grid">
+                <div class="kpi-card" id="card-responses">
+                    <div class="kpi-icon blue">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    </div>
+                    <div class="kpi-info">
+                        <h3>Jumlah Responden</h3>
+                        <div class="value" id="totalResponses">0</div>
+                        <p class="subtext">Peserta yang menjawab tinjauan</p>
+                    </div>
+                </div>
+
+                <div class="kpi-card" id="card-stigma">
+                    <div class="kpi-icon purple">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                    </div>
+                    <div class="kpi-info">
+                        <h3>Skor Stigma (Keseluruhan)</h3>
+                        <div class="value" id="avgStigma">0.00</div>
+                        <div class="status-badge" id="stigmaStatus">-</div>
+                    </div>
+                </div>
+
+                <div class="kpi-card" id="card-visitors">
+                    <div class="kpi-icon green">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </div>
+                    <div class="kpi-info">
+                        <h3>Kehadiran Pengunjung</h3>
+                        <div class="value" id="totalVisitors">0</div>
+                        <div class="progress-container">
+                            <div class="progress-bar" id="visitorProgress" style="width: 0%"></div>
+                            <span id="visitorTargetText">0% dari sasaran</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="kpi-card" id="card-rate">
+                    <div class="kpi-icon orange">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    </div>
+                    <div class="kpi-info">
+                        <h3>Kadar Respon</h3>
+                        <div class="value" id="responseRate">0%</div>
+                        <div class="progress-container">
+                            <div class="progress-bar" id="rateProgress" style="width: 0%"></div>
+                            <span id="rateTargetText">Sasaran: 30%</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Grid -->
+            <section class="charts-grid">
+                <!-- Stigma Dimensions -->
+                <div class="chart-container span-2">
+                    <div class="chart-header">
+                        <h2>Analisis Dimensi Stigma (Stig-9)</h2>
+                        <p>Perbandingan antara Afektif, Kognitif dan Tingkah Laku</p>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="stigmaDimensionsChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- District Comparison -->
+                <div class="chart-container span-4">
+                    <div class="chart-header">
+                        <h2>Pencapaian Mengikut Daerah</h2>
+                        <p>Kehadiran Pengunjung vs Sasaran (300)</p>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="districtComparisonChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Demographics -->
+                <div class="chart-container span-2">
+                    <div class="chart-header">
+                        <h2>Kumpulan Umur</h2>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="ageGroupChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container span-2">
+                    <div class="chart-header">
+                        <h2>Jantina</h2>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="genderChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Program Evaluation -->
+                <div class="chart-container span-4">
+                    <div class="chart-header">
+                        <h2>Penilaian Program</h2>
+                        <p>Skor Purata (Skala 1-5)</p>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="evaluationChart"></canvas>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2026 JKN Kedah | Unit Kesihatan Mental, Pencegahan Keganasan & Kecederaan (MHPSS)</p>
+        </footer>
+    </div>
+
+    <script src="utils.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

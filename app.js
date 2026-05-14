@@ -264,89 +264,65 @@ function renderDemographicsChart(responses) {
 }
 
 function renderEvaluationChart(responses) {
-    // 1. Ratings Bar Chart
     const ctx = document.getElementById('evaluationChart').getContext('2d');
     if (charts.eval) charts.eval.destroy();
 
-    const metrics = [
-        { label: 'Menarik', key: 'rate_menarik' },
-        { label: 'Faham', key: 'rate_faham' },
-        { label: 'Relevan', key: 'rate_relevan' },
-        { label: 'Mendorong', key: 'rate_dorong' }
-    ];
+    if (responses.length === 0) return;
 
-    const data = metrics.map(m => {
-        const values = responses.map(r => parseFloat(r[m.key])).filter(v => !isNaN(v));
-        return values.length > 0 ? values.reduce((a, b) => a + b, 0) / values.length : 0;
-    });
+    // 1. Calculate Binary Metrics (% Ya)
+    const getBinaryPercent = (key) => {
+        const total = responses.length;
+        const yaCount = responses.filter(r => {
+            const val = String(r[key] || '').toLowerCase();
+            return val === 'ya' || val === 'yes' || val === '1';
+        }).length;
+        return (yaCount / total) * 100;
+    };
+
+    // 2. Calculate Rating Metrics (% of 5)
+    const getRatingPercent = (key) => {
+        const values = responses.map(r => parseFloat(r[key])).filter(v => !isNaN(v));
+        if (values.length === 0) return 0;
+        const avg = values.reduce((a, b) => a + b, 0) / values.length;
+        return (avg / 5) * 100;
+    };
+
+    const metrics = [
+        { label: 'Amalan Kendiri (Ya)', value: getBinaryPercent('amalan_kendiri'), color: '#2ecc71' },
+        { label: 'Lihat Logo (Ya)', value: getBinaryPercent('lihat_logo'), color: '#2ecc71' },
+        { label: 'Program Menarik', value: getRatingPercent('rate_menarik'), color: '#3498db' },
+        { label: 'Faham Kandungan', value: getRatingPercent('rate_faham'), color: '#3498db' },
+        { label: 'Relevan', value: getRatingPercent('rate_relevan'), color: '#3498db' },
+        { label: 'Mendorong', value: getRatingPercent('rate_dorong'), color: '#3498db' }
+    ];
 
     charts.eval = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: metrics.map(m => m.label),
             datasets: [{
-                label: 'Skor Purata (1-5)',
-                data: data,
-                backgroundColor: 'rgba(52, 152, 219, 0.7)',
-                borderColor: '#3498db',
-                borderWidth: 1,
-                borderRadius: 8
+                data: metrics.map(m => m.value),
+                backgroundColor: metrics.map(m => m.color),
+                borderRadius: 10,
+                barThickness: 30
             }]
         },
         options: {
             indexAxis: 'y',
-            scales: { x: { min: 0, max: 5 } },
+            responsive: true,
             maintainAspectRatio: false,
+            scales: {
+                x: { min: 0, max: 100, ticks: { callback: (v) => v + '%' } },
+                y: { grid: { display: false } }
+            },
             plugins: {
+                legend: { display: false },
                 datalabels: {
                     anchor: 'end',
                     align: 'right',
-                    color: '#34495e',
-                    font: { weight: 'bold' },
-                    formatter: (value) => value.toFixed(2)
-                }
-            }
-        }
-    });
-
-    // 2. Binary Questions (Pie/Donut)
-    renderBinaryChart('amalanChart', 'amalan_kendiri', responses);
-    renderBinaryChart('logoChart', 'lihat_logo', responses);
-}
-
-function renderBinaryChart(id, key, responses) {
-    const ctx = document.getElementById(id).getContext('2d');
-    if (charts[id]) charts[id].destroy();
-
-    const counts = responses.reduce((acc, curr) => {
-        const val = curr[key] || 'Tiada Data';
-        acc[val] = (acc[val] || 0) + 1;
-        return acc;
-    }, {});
-
-    charts[id] = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: Object.keys(counts),
-            datasets: [{
-                data: Object.values(counts),
-                backgroundColor: ['#2ecc71', '#e74c3c', '#95a5a6']
-            }]
-        },
-        options: {
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } },
-                datalabels: {
-                    color: '#fff',
-                    font: { weight: 'bold', size: 10 },
-                    formatter: (value, ctx) => {
-                        let sum = 0;
-                        let dataArr = ctx.chart.data.datasets[0].data;
-                        dataArr.map(data => { sum += data; });
-                        let percentage = (value * 100 / sum).toFixed(1) + "%";
-                        return value > 0 ? `${value}\n(${percentage})` : '';
-                    }
+                    color: '#2c3e50',
+                    font: { weight: 'bold', size: 12 },
+                    formatter: (value) => value.toFixed(1) + '%'
                 }
             }
         }

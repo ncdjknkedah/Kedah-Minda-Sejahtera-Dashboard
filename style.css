@@ -382,6 +382,54 @@ select:focus {
     text-align: center;
 }
 
+/* Awareness Bars */
+.awareness-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    margin-top: 30px;
+}
+
+.awareness-item {
+    width: 100%;
+}
+
+.awareness-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-main);
+}
+
+.awareness-bar-bg {
+    height: 35px;
+    background: #f0f2f5;
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+}
+
+.awareness-bar-fill {
+    height: 100%;
+    width: 0%;
+    transition: width 1s ease-in-out;
+}
+
+.awareness-bar-fill.green { background: linear-gradient(90deg, #2ecc71, #27ae60); }
+.awareness-bar-fill.blue { background: linear-gradient(90deg, #3498db, #2980b9); }
+
+.awareness-val {
+    position: absolute;
+    right: 15px;
+    font-weight: 800;
+    font-size: 14px;
+    color: var(--text-main);
+    text-shadow: 0 0 5px rgba(255,255,255,0.8);
+}
+
 /* Footer */
 .footer {
     text-align: center;

@@ -100,6 +100,7 @@ function updateDashboard(selectedDistrict) {
     const statusEl = document.getElementById('stigmaStatus');
     statusEl.textContent = interpretation.label;
     statusEl.className = `status-badge ${interpretation.class}`;
+    document.getElementById('stigmaDesc').textContent = interpretation.desc;
 
     // Update Progress Bars
     updateProgressBar('visitorProgress', visitorAchievement);

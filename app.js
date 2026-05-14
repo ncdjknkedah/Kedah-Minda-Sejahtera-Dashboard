@@ -161,9 +161,13 @@ function renderDistrictComparisonChart(selectedDistrict) {
     const ctx = document.getElementById('districtComparisonChart').getContext('2d');
     if (charts.district) charts.district.destroy();
 
-    const districts = targetData.map(d => d['Daerah']);
-    const actual = targetData.map(d => parseInt(d['Bilangan Pengunjung Sebenar']) || 0);
-    const targets = targetData.map(d => parseInt(d['Sasaran Pengunjung']) || 300);
+    const filteredTargets = selectedDistrict === 'all'
+        ? targetData
+        : targetData.filter(d => d['Daerah'] === selectedDistrict);
+
+    const districts = filteredTargets.map(d => d['Daerah']);
+    const actual = filteredTargets.map(d => parseInt(d['Bilangan Pengunjung Sebenar']) || 0);
+    const targets = filteredTargets.map(d => parseInt(d['Sasaran Pengunjung']) || 300);
 
     charts.district = new Chart(ctx, {
         type: 'bar',

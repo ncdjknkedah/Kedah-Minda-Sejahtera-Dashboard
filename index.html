@@ -55,9 +55,12 @@
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                     </div>
                     <div class="kpi-info">
-                        <h3>Skor Stigma (Keseluruhan)</h3>
-                        <div class="value" id="avgStigma">0.00</div>
-                        <div class="status-badge" id="stigmaStatus">-</div>
+                        <h3>Purata Skor Stigma</h3>
+                        <div class="value-row">
+                            <div class="value" id="avgStigma">0.00</div>
+                            <div class="status-badge" id="stigmaStatus">-</div>
+                        </div>
+                        <p class="interpretation-text" id="stigmaDesc">Sila muat data...</p>
                     </div>
                 </div>
 
@@ -86,6 +89,36 @@
                             <div class="progress-bar" id="rateProgress" style="width: 0%"></div>
                             <span id="rateTargetText">Sasaran: 30%</span>
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Interpretation Guide -->
+            <section class="interpretation-guide">
+                <div class="guide-header">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                    <span>Garis Panduan Interpretasi Skor (Skala 1-4)</span>
+                </div>
+                <div class="guide-grid">
+                    <div class="guide-item excellent">
+                        <span class="range">1.00 - 1.75</span>
+                        <span class="label">Sangat Rendah</span>
+                        <p>Penerimaan sangat tinggi & inklusif</p>
+                    </div>
+                    <div class="guide-item good">
+                        <span class="range">1.76 - 2.50</span>
+                        <span class="label">Rendah/Sederhana</span>
+                        <p>Kesedaran asas, ada keraguan sosial kecil</p>
+                    </div>
+                    <div class="guide-item warning">
+                        <span class="range:">2.51 - 3.25</span>
+                        <span class="label">Tinggi</span>
+                        <p>Stigma ketara, perlu kempen kesedaran</p>
+                    </div>
+                    <div class="guide-item critical">
+                        <span class="range">3.26 - 4.00</span>
+                        <span class="label">Sangat Tinggi</span>
+                        <p>Diskriminasi & stereotaip ekstrem</p>
                     </div>
                 </div>
             </section>
@@ -147,7 +180,7 @@
         </main>
 
         <footer class="footer">
-            <p>&copy; 2026 JKN Kedah | Unit Kawalan Penyakit Tidak Berjangkit (NCD)</p>
+            <p>&copy; 2026 JKN Kedah | Unit Kesihatan Mental, Pencegahan Keganasan & Kecederaan (MHPSS)</p>
         </footer>
     </div>
 

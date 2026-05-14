@@ -191,13 +191,22 @@ function renderDistrictComparisonChart(selectedDistrict) {
                 y: { beginAtZero: true }
             },
             plugins: {
-                legend: { position: 'top' },
+                legend: { 
+                    position: 'bottom',
+                    labels: { padding: 20 }
+                },
                 datalabels: {
                     anchor: 'end',
                     align: 'top',
+                    offset: -5,
                     color: '#7f8c8d',
                     font: { size: 10, weight: '600' },
                     formatter: (value) => value > 0 ? value : ''
+                }
+            },
+            layout: {
+                padding: {
+                    top: 20
                 }
             }
         }
@@ -269,50 +278,54 @@ function renderEvaluationChart(responses) {
 
     if (responses.length === 0) return;
 
-    // 1. Calculate Binary Metrics (% Ya)
+    // 1. Update Awareness Bars (Binary)
     const getBinaryPercent = (key) => {
-        const total = responses.length;
         const yaCount = responses.filter(r => {
             const val = String(r[key] || '').toLowerCase();
             return val === 'ya' || val === 'yes' || val === '1';
         }).length;
-        return (yaCount / total) * 100;
+        return (yaCount / responses.length) * 100;
     };
 
-    // 2. Calculate Rating Metrics (% of 5)
-    const getRatingPercent = (key) => {
-        const values = responses.map(r => parseFloat(r[key])).filter(v => !isNaN(v));
-        if (values.length === 0) return 0;
-        const avg = values.reduce((a, b) => a + b, 0) / values.length;
-        return (avg / 5) * 100;
-    };
+    const amalanPct = getBinaryPercent('amalan_kendiri');
+    const logoPct = getBinaryPercent('lihat_logo');
 
+    document.getElementById('amalanBar').style.width = amalanPct + '%';
+    document.getElementById('amalanPercent').textContent = amalanPct.toFixed(1) + '%';
+    document.getElementById('logoBar').style.width = logoPct + '%';
+    document.getElementById('logoPercent').textContent = logoPct.toFixed(1) + '%';
+
+    // 2. Ratings Bar Chart (Likert 1-5)
     const metrics = [
-        { label: 'Amalan Kendiri (Ya)', value: getBinaryPercent('amalan_kendiri'), color: '#2ecc71' },
-        { label: 'Lihat Logo (Ya)', value: getBinaryPercent('lihat_logo'), color: '#2ecc71' },
-        { label: 'Program Menarik', value: getRatingPercent('rate_menarik'), color: '#3498db' },
-        { label: 'Faham Kandungan', value: getRatingPercent('rate_faham'), color: '#3498db' },
-        { label: 'Relevan', value: getRatingPercent('rate_relevan'), color: '#3498db' },
-        { label: 'Mendorong', value: getRatingPercent('rate_dorong'), color: '#3498db' }
+        { label: 'Menarik', key: 'rate_menarik' },
+        { label: 'Faham', key: 'rate_faham' },
+        { label: 'Relevan', key: 'rate_relevan' },
+        { label: 'Mendorong', key: 'rate_dorong' }
     ];
+
+    const data = metrics.map(m => {
+        const values = responses.map(r => parseFloat(r[m.key])).filter(v => !isNaN(v));
+        return values.length > 0 ? values.reduce((a, b) => a + b, 0) / values.length : 0;
+    });
 
     charts.eval = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: metrics.map(m => m.label),
             datasets: [{
-                data: metrics.map(m => m.value),
-                backgroundColor: metrics.map(m => m.color),
-                borderRadius: 10,
-                barThickness: 30
+                label: 'Skor Purata (1-5)',
+                data: data,
+                backgroundColor: '#3498db',
+                borderRadius: 8,
+                barThickness: 40
             }]
         },
         options: {
             indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
-            scales: {
-                x: { min: 0, max: 100, ticks: { callback: (v) => v + '%' } },
+            scales: { 
+                x: { min: 0, max: 5 },
                 y: { grid: { display: false } }
             },
             plugins: {
@@ -320,9 +333,9 @@ function renderEvaluationChart(responses) {
                 datalabels: {
                     anchor: 'end',
                     align: 'right',
-                    color: '#2c3e50',
-                    font: { weight: 'bold', size: 12 },
-                    formatter: (value) => value.toFixed(1) + '%'
+                    color: '#34495e',
+                    font: { weight: 'bold', size: 13 },
+                    formatter: (value) => value.toFixed(2)
                 }
             }
         }

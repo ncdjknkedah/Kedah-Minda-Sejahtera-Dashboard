@@ -182,14 +182,31 @@
                     </div>
                 </div>
 
-                <!-- Program Evaluation -->
-                <div class="chart-container span-4">
+                <!-- Program Evaluation Section -->
+                <div class="chart-container span-6">
                     <div class="chart-header">
-                        <h2>Penilaian Program</h2>
-                        <p>Skor Purata (Skala 1-5)</p>
+                        <h2>Penilaian & Maklum Balas Program</h2>
+                        <p>Analisis Keberkesanan dan Kesedaran Pengunjung</p>
                     </div>
-                    <div class="chart-body">
-                        <canvas id="evaluationChart"></canvas>
+                    <div class="evaluation-layout">
+                        <!-- Ratings Chart -->
+                        <div class="eval-main">
+                            <h4>Skor Purata Penilaian (Skala 1-5)</h4>
+                            <div class="chart-body">
+                                <canvas id="evaluationChart"></canvas>
+                            </div>
+                        </div>
+                        <!-- Binary Questions -->
+                        <div class="eval-side">
+                            <div class="eval-mini-chart">
+                                <h4>Amalan Kendiri</h4>
+                                <canvas id="amalanChart"></canvas>
+                            </div>
+                            <div class="eval-mini-chart">
+                                <h4>Lihat Logo Hentikan Stigma</h4>
+                                <canvas id="logoChart"></canvas>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>

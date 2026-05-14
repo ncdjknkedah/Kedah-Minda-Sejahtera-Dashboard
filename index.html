@@ -182,13 +182,37 @@
                     </div>
                 </div>
 
-                <!-- Program Evaluation Section -->
-                <div class="chart-container span-6">
+                <!-- Awareness & Practice Section -->
+                <div class="chart-container span-2">
                     <div class="chart-header">
-                        <h2>Penilaian & Maklum Balas Program</h2>
-                        <p>Analisis Keberkesanan, Kesedaran dan Amalan (Dalam Peratusan %)</p>
+                        <h2>Kesedaran & Amalan</h2>
+                        <p>Kadar "Ya" bagi setiap soalan</p>
                     </div>
-                    <div class="chart-body" style="height: 400px;">
+                    <div class="awareness-grid">
+                        <div class="awareness-item">
+                            <span class="awareness-label">Amalan Kendiri</span>
+                            <div class="awareness-bar-bg">
+                                <div id="amalanBar" class="awareness-bar-fill green"></div>
+                                <span id="amalanPercent" class="awareness-val">0%</span>
+                            </div>
+                        </div>
+                        <div class="awareness-item">
+                            <span class="awareness-label">Lihat Logo</span>
+                            <div class="awareness-bar-bg">
+                                <div id="logoBar" class="awareness-bar-fill blue"></div>
+                                <span id="logoPercent" class="awareness-val">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Program Evaluation Section -->
+                <div class="chart-container span-4">
+                    <div class="chart-header">
+                        <h2>Penilaian Program</h2>
+                        <p>Skor Purata (Skala Likert 1-5)</p>
+                    </div>
+                    <div class="chart-body">
                         <canvas id="evaluationChart"></canvas>
                     </div>
                 </div>

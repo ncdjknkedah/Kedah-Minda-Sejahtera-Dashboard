@@ -205,82 +205,61 @@ function renderDistrictComparisonChart(selectedDistrict) {
 }
 
 function renderDemographicsChart(responses) {
-    // Age Group
-    const ageCtx = document.getElementById('ageGroupChart').getContext('2d');
-    if (charts.age) charts.age.destroy();
+    const categories = [
+        { id: 'ageChart', key: 'kumpulan_umur', type: 'doughnut' },
+        { id: 'raceChart', key: 'bangsa', type: 'pie' },
+        { id: 'religionChart', key: 'agama', type: 'doughnut' },
+        { id: 'locationChart', key: 'lokasi', type: 'pie' },
+        { id: 'educationChart', key: 'pendidikan', type: 'doughnut' },
+        { id: 'jobChart', key: 'status_pekerjaan', type: 'pie' }
+    ];
 
-    const ageCounts = responses.reduce((acc, curr) => {
-        const age = curr['kumpulan_umur'] || 'Tiada Data';
-        acc[age] = (acc[age] || 0) + 1;
-        return acc;
-    }, {});
+    const colors = ['#2ecc71', '#3498db', '#9b59b6', '#f1c40f', '#e67e22', '#e74c3c', '#1abc9c', '#34495e'];
 
-    charts.age = new Chart(ageCtx, {
-        type: 'doughnut',
-        data: {
-            labels: Object.keys(ageCounts),
-            datasets: [{
-                data: Object.values(ageCounts),
-                backgroundColor: ['#2ecc71', '#3498db', '#9b59b6', '#f1c40f', '#e67e22', '#e74c3c']
-            }]
-        },
-        options: { 
-            maintainAspectRatio: false, 
-            plugins: { 
-                legend: { position: 'bottom' },
-                datalabels: {
-                    color: '#fff',
-                    font: { weight: 'bold', size: 11 },
-                    formatter: (value, ctx) => {
-                        let sum = 0;
-                        let dataArr = ctx.chart.data.datasets[0].data;
-                        dataArr.map(data => { sum += data; });
-                        let percentage = (value * 100 / sum).toFixed(1) + "%";
-                        return value > 0 ? `${value}\n(${percentage})` : '';
-                    },
-                    textAlign: 'center'
+    categories.forEach(cat => {
+        const ctx = document.getElementById(cat.id).getContext('2d');
+        if (charts[cat.id]) charts[cat.id].destroy();
+
+        const counts = responses.reduce((acc, curr) => {
+            const val = curr[cat.key] || 'Tiada Data';
+            acc[val] = (acc[val] || 0) + 1;
+            return acc;
+        }, {});
+
+        charts[cat.id] = new Chart(ctx, {
+            type: cat.type,
+            data: {
+                labels: Object.keys(counts),
+                datasets: [{
+                    data: Object.values(counts),
+                    backgroundColor: colors
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } },
+                    datalabels: {
+                        color: '#fff',
+                        font: { weight: 'bold', size: 10 },
+                        formatter: (value, ctx) => {
+                            let sum = 0;
+                            let dataArr = ctx.chart.data.datasets[0].data;
+                            dataArr.map(data => { sum += data; });
+                            let percentage = (value * 100 / sum).toFixed(1) + "%";
+                            return value > 0 ? `${value}\n(${percentage})` : '';
+                        },
+                        textAlign: 'center',
+                        display: (ctx) => {
+                            const dataset = ctx.chart.data.datasets[0];
+                            const value = dataset.data[ctx.dataIndex];
+                            const sum = dataset.data.reduce((a, b) => a + b, 0);
+                            return (value / sum) > 0.05; // Only show if > 5% to avoid overlap
+                        }
+                    }
                 }
-            } 
-        }
-    });
-
-    // Gender
-    const genderCtx = document.getElementById('genderChart').getContext('2d');
-    if (charts.gender) charts.gender.destroy();
-
-    const genderCounts = responses.reduce((acc, curr) => {
-        const gender = curr['jantina'] || 'Tiada Data';
-        acc[gender] = (acc[gender] || 0) + 1;
-        return acc;
-    }, {});
-
-    charts.gender = new Chart(genderCtx, {
-        type: 'pie',
-        data: {
-            labels: Object.keys(genderCounts),
-            datasets: [{
-                data: Object.values(genderCounts),
-                backgroundColor: ['#3498db', '#e84393']
-            }]
-        },
-        options: { 
-            maintainAspectRatio: false, 
-            plugins: { 
-                legend: { position: 'bottom' },
-                datalabels: {
-                    color: '#fff',
-                    font: { weight: 'bold', size: 11 },
-                    formatter: (value, ctx) => {
-                        let sum = 0;
-                        let dataArr = ctx.chart.data.datasets[0].data;
-                        dataArr.map(data => { sum += data; });
-                        let percentage = (value * 100 / sum).toFixed(1) + "%";
-                        return value > 0 ? `${value}\n(${percentage})` : '';
-                    },
-                    textAlign: 'center'
-                }
-            } 
-        }
+            }
+        });
     });
 }
 

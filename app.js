@@ -5,6 +5,9 @@ let rawResponses = [];
 let targetData = [];
 let charts = {};
 
+// Register ChartDataLabels plugin
+Chart.register(ChartDataLabels);
+
 document.addEventListener('DOMContentLoaded', async () => {
     showLoading();
     await loadData();
@@ -142,7 +145,14 @@ function renderStigmaDimensionsChart(a, c, b) {
                     ticks: { stepSize: 1 }
                 }
             },
-            maintainAspectRatio: false
+            maintainAspectRatio: false,
+            plugins: {
+                datalabels: {
+                    color: '#2c3e50',
+                    font: { weight: 'bold' },
+                    formatter: (value) => value.toFixed(2)
+                }
+            }
         }
     });
 }
@@ -181,7 +191,14 @@ function renderDistrictComparisonChart(selectedDistrict) {
                 y: { beginAtZero: true }
             },
             plugins: {
-                legend: { position: 'top' }
+                legend: { position: 'top' },
+                datalabels: {
+                    anchor: 'end',
+                    align: 'top',
+                    color: '#7f8c8d',
+                    font: { size: 10, weight: '600' },
+                    formatter: (value) => value > 0 ? value : ''
+                }
             }
         }
     });
@@ -207,7 +224,24 @@ function renderDemographicsChart(responses) {
                 backgroundColor: ['#2ecc71', '#3498db', '#9b59b6', '#f1c40f', '#e67e22', '#e74c3c']
             }]
         },
-        options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+        options: { 
+            maintainAspectRatio: false, 
+            plugins: { 
+                legend: { position: 'bottom' },
+                datalabels: {
+                    color: '#fff',
+                    font: { weight: 'bold', size: 11 },
+                    formatter: (value, ctx) => {
+                        let sum = 0;
+                        let dataArr = ctx.chart.data.datasets[0].data;
+                        dataArr.map(data => { sum += data; });
+                        let percentage = (value * 100 / sum).toFixed(1) + "%";
+                        return value > 0 ? `${value}\n(${percentage})` : '';
+                    },
+                    textAlign: 'center'
+                }
+            } 
+        }
     });
 
     // Gender
@@ -229,7 +263,24 @@ function renderDemographicsChart(responses) {
                 backgroundColor: ['#3498db', '#e84393']
             }]
         },
-        options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+        options: { 
+            maintainAspectRatio: false, 
+            plugins: { 
+                legend: { position: 'bottom' },
+                datalabels: {
+                    color: '#fff',
+                    font: { weight: 'bold', size: 11 },
+                    formatter: (value, ctx) => {
+                        let sum = 0;
+                        let dataArr = ctx.chart.data.datasets[0].data;
+                        dataArr.map(data => { sum += data; });
+                        let percentage = (value * 100 / sum).toFixed(1) + "%";
+                        return value > 0 ? `${value}\n(${percentage})` : '';
+                    },
+                    textAlign: 'center'
+                }
+            } 
+        }
     });
 }
 
@@ -265,7 +316,16 @@ function renderEvaluationChart(responses) {
         options: {
             indexAxis: 'y',
             scales: { x: { min: 0, max: 5 } },
-            maintainAspectRatio: false
+            maintainAspectRatio: false,
+            plugins: {
+                datalabels: {
+                    anchor: 'end',
+                    align: 'right',
+                    color: '#34495e',
+                    font: { weight: 'bold' },
+                    formatter: (value) => value.toFixed(2)
+                }
+            }
         }
     });
 }

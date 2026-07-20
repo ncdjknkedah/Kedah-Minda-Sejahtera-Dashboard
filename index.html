@@ -3,515 +3,228 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STIG-9 Analytics Pro v10.0 - Final Comprehensive</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
+    <title>KMS2026 Dashboard | Program Jelajah Kedah Minda Sejahtera</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
-    <script src="https://unpkg.com/@sgratzl/chartjs-chart-boxplot@3.6.0/build/index.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.9.4/jstat.min.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .card-stat { transition: all 0.3s ease; border: 1px solid #e2e8f0; border-radius: 1.5rem; background: white; padding: 1.2rem; cursor: pointer; }
-        .card-stat:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-        .chart-container { position: relative; height: 250px; width: 100%; }
-        #chartModal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(8px); }
-        .modal-content { background: white; margin: 2% auto; padding: 2rem; border-radius: 2rem; width: 90%; max-width: 1000px; position: relative; }
-        .close-btn { position: absolute; top: 1rem; right: 1.5rem; font-size: 2.5rem; cursor: pointer; color: #ef4444; font-weight: bold; }
-        #modalLoader { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
-        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #4F46E5; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 10px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .p-sig { color: #059669; font-weight: bold; background-color: #ecfdf5; padding: 2px 6px; border-radius: 4px; border: 1px solid #10b981; }
-    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 </head>
-<body class="bg-[#F8FAFC] text-slate-900">
-
-    <div id="chartModal">
-        <span class="close-btn" onclick="closeModal()">&times;</span>
-        <div class="modal-content">
-            <h3 id="modalTitle" class="text-xl font-black text-slate-800 uppercase mb-4 text-center"></h3>
-            <div id="modalLoader"><div class="spinner"></div><p class="text-xs font-bold uppercase">Menjana Grafik...</p></div>
-            <div class="h-[550px] w-full relative">
-                <canvas id="zoomCanvas"></canvas>
+<body>
+    <div class="app-container">
+        <!-- Sidebar/Header -->
+        <header class="header">
+            <div class="logo-section">
+                <img src="logo.png" alt="KMS2026 Logo" class="logo-img">
+                <div class="brand-text">
+                    <h1>Kedah Minda Sejahtera</h1>
+                    <p>Dashboard Pemantauan Program Jelajah 2026</p>
+                </div>
             </div>
-        </div>
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="districtFilter">Daerah</label>
+                    <select id="districtFilter">
+                        <option value="all">Semua Daerah</option>
+                    </select>
+                </div>
+                <button id="refreshBtn" class="refresh-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                    Refresh
+                </button>
+            </div>
+        </header>
+
+        <main class="content">
+            <!-- KPI Cards -->
+            <section class="kpi-grid">
+                <div class="kpi-card" id="card-responses">
+                    <div class="kpi-icon blue">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    </div>
+                    <div class="kpi-info">
+                        <h3>Jumlah Responden</h3>
+                        <div class="value" id="totalResponses">0</div>
+                        <p class="subtext">Peserta yang menjawab tinjauan</p>
+                    </div>
+                </div>
+
+                <div class="kpi-card" id="card-stigma">
+                    <div class="kpi-icon purple">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                    </div>
+                    <div class="kpi-info">
+                        <h3>Purata Skor Stigma</h3>
+                        <div class="value-row">
+                            <div class="value" id="avgStigma">0.00</div>
+                            <div class="status-badge" id="stigmaStatus">-</div>
+                        </div>
+                        <p class="interpretation-text" id="stigmaDesc">Sila muat data...</p>
+                    </div>
+                </div>
+
+                <div class="kpi-card" id="card-visitors">
+                    <div class="kpi-icon green">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </div>
+                    <div class="kpi-info">
+                        <h3>Kehadiran Pengunjung (Data Manual)</h3>
+                        <div class="value" id="totalVisitors">0</div>
+                        <div class="progress-container">
+                            <div class="progress-bar" id="visitorProgress" style="width: 0%"></div>
+                            <span id="visitorTargetText">0% dari sasaran</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="kpi-card" id="card-rate">
+                    <div class="kpi-icon orange">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    </div>
+                    <div class="kpi-info">
+                        <h3>Kadar Respon</h3>
+                        <div class="value" id="responseRate">0%</div>
+                        <div class="progress-container">
+                            <div class="progress-bar" id="rateProgress" style="width: 0%"></div>
+                            <span id="rateTargetText">Sasaran: 30%</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Interpretation Guide -->
+            <section class="interpretation-guide">
+                <div class="guide-header">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                    <span>Garis Panduan Interpretasi Skor (Skala 1-4)</span>
+                </div>
+                <div class="guide-grid">
+                    <div class="guide-item excellent">
+                        <span class="range">1.00 - 1.75</span>
+                        <span class="label">Sangat Rendah</span>
+                        <p>Penerimaan sangat tinggi & inklusif</p>
+                    </div>
+                    <div class="guide-item good">
+                        <span class="range">1.76 - 2.50</span>
+                        <span class="label">Rendah/Sederhana</span>
+                        <p>Kesedaran asas, ada keraguan sosial kecil</p>
+                    </div>
+                    <div class="guide-item warning">
+                        <span class="range:">2.51 - 3.25</span>
+                        <span class="label">Tinggi</span>
+                        <p>Stigma ketara, perlu kempen kesedaran</p>
+                    </div>
+                    <div class="guide-item critical">
+                        <span class="range">3.26 - 4.00</span>
+                        <span class="label">Sangat Tinggi</span>
+                        <p>Diskriminasi & stereotaip ekstrem</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Grid -->
+            <section class="charts-grid">
+                <!-- Stigma Dimensions -->
+                <div class="chart-container span-2">
+                    <div class="chart-header">
+                        <h2>Analisis Dimensi Stigma (Stig-9)</h2>
+                        <p>Perbandingan antara Afektif, Kognitif dan Tingkah Laku</p>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="stigmaDimensionsChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- District Comparison -->
+                <div class="chart-container span-4">
+                    <div class="chart-header">
+                        <h2>Pencapaian Mengikut Daerah</h2>
+                        <p>Kehadiran Pengunjung vs Sasaran (300)</p>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="districtComparisonChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Visitor Profile Section -->
+                <div class="chart-container span-6">
+                    <div class="chart-header">
+                        <h2>Profil Pengunjung</h2>
+                        <p>Analisis Demografi Responden</p>
+                    </div>
+                    <div class="profile-grid">
+                        <div class="profile-chart">
+                            <h4>Kumpulan Umur</h4>
+                            <canvas id="ageChart"></canvas>
+                        </div>
+                        <div class="profile-chart">
+                            <h4>Bangsa</h4>
+                            <canvas id="raceChart"></canvas>
+                        </div>
+                        <div class="profile-chart">
+                            <h4>Agama</h4>
+                            <canvas id="religionChart"></canvas>
+                        </div>
+                        <div class="profile-chart">
+                            <h4>Lokasi Kediaman</h4>
+                            <canvas id="locationChart"></canvas>
+                        </div>
+                        <div class="profile-chart">
+                            <h4>Taraf Pendidikan</h4>
+                            <canvas id="educationChart"></canvas>
+                        </div>
+                        <div class="profile-chart">
+                            <h4>Pekerjaan</h4>
+                            <canvas id="jobChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Awareness & Practice Section -->
+                <div class="chart-container span-2">
+                    <div class="chart-header">
+                        <h2>Kesedaran & Amalan</h2>
+                        <p>Kadar "Ya" bagi setiap soalan</p>
+                    </div>
+                    <div class="awareness-grid">
+                        <div class="awareness-item">
+                            <span class="awareness-label">Amalan Kendiri</span>
+                            <div class="awareness-bar-bg">
+                                <div id="amalanBar" class="awareness-bar-fill green"></div>
+                                <span id="amalanPercent" class="awareness-val">0%</span>
+                            </div>
+                        </div>
+                        <div class="awareness-item">
+                            <span class="awareness-label">Lihat Logo</span>
+                            <div class="awareness-bar-bg">
+                                <div id="logoBar" class="awareness-bar-fill blue"></div>
+                                <span id="logoPercent" class="awareness-val">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Program Evaluation Section -->
+                <div class="chart-container span-4">
+                    <div class="chart-header">
+                        <h2>Penilaian Program</h2>
+                        <p>Skor Purata (Skala Likert 1-5)</p>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="evaluationChart"></canvas>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2026 JKN Kedah | Unit Kawalan Penyakit Tidak Berjangkit (NCD)</p>
+        </footer>
     </div>
 
-    <header class="bg-indigo-950 text-white p-6 shadow-2xl sticky top-0 z-50">
-        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-            <div>
-                <h1 class="text-2xl font-black text-indigo-400 tracking-tighter uppercase">STIG-9 Dashboard Pro v10.0</h1>
-                <p class="text-slate-400 text-[10px] italic font-medium uppercase tracking-widest">Kajian Stigma Kesihatan Mental Bersepadu</p>
-            </div>
-            <div class="flex flex-col items-end gap-2">
-                <div class="flex gap-2">
-                    <input type="file" id="csvFileInput" accept=".csv" style="display: none;" onchange="handleFileUpload(event)">
-                    <button onclick="document.getElementById('csvFileInput').click()" class="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-xl text-[10px] font-bold uppercase transition-all shadow-lg border border-emerald-500">Upload CSV</button>
-                    <button onclick="init()" class="bg-indigo-600 hover:bg-indigo-500 px-5 py-2 rounded-xl text-[10px] font-bold uppercase transition-all shadow-lg border border-indigo-500">Kemaskini Auto</button>
-                </div>
-                <div id="updateTime" class="text-[10px] text-slate-400 uppercase font-bold tracking-widest">Memuatkan Data...</div>
-            </div>
-        </div>
-    </header>
-
-    <main class="container mx-auto px-4 py-8 space-y-8">
-        
-        <section class="card-stat">
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-9 gap-3 items-center">
-                <select id="fJantina" onchange="updateDashboard()" class="p-3 bg-slate-50 border rounded-xl text-xs font-bold outline-none"></select>
-                <select id="fUmurGroup" onchange="updateDashboard()" class="p-3 bg-slate-50 border rounded-xl text-xs font-bold outline-none"></select>
-                <select id="fBangsa" onchange="updateDashboard()" class="p-3 bg-slate-50 border rounded-xl text-xs font-bold outline-none"></select>
-                <select id="fAgama" onchange="updateDashboard()" class="p-3 bg-slate-50 border rounded-xl text-xs font-bold outline-none"></select>
-                <select id="fPendidikan" onchange="updateDashboard()" class="p-3 bg-slate-50 border rounded-xl text-xs font-bold outline-none"></select>
-                <select id="fPekerjaan" onchange="updateDashboard()" class="p-3 bg-slate-50 border rounded-xl text-xs font-bold outline-none"></select>
-                
-                <div class="flex flex-col gap-1 col-span-1">
-                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider pl-1">Tarikh Mula</label>
-                    <input type="date" id="fStartDate" onchange="updateDashboard()" class="p-2 bg-slate-50 border rounded-xl text-xs font-bold outline-none w-full">
-                </div>
-                
-                <div class="flex flex-col gap-1 col-span-1">
-                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider pl-1">Tarikh Tamat</label>
-                    <input type="date" id="fEndDate" onchange="updateDashboard()" class="p-2 bg-slate-50 border rounded-xl text-xs font-bold outline-none w-full">
-                </div>
-
-                <button onclick="resetFilters()" class="p-3 bg-slate-200 hover:bg-slate-300 rounded-xl text-xs font-black uppercase tracking-widest self-end h-[42px]">Reset</button>
-            </div>
-        </section>
-
-        <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="card-stat border-l-8 border-l-indigo-500 flex flex-col justify-center items-center text-center h-full">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Jumlah Responden (N)</p>
-                <h3 id="nVal" class="text-6xl font-black text-indigo-900 mt-2">0</h3>
-            </div>
-            
-            <div class="card-stat border-l-8 border-l-emerald-500 flex flex-col justify-center items-center text-center h-full">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Statistik Umur</p>
-                <div id="ageStats" class="flex flex-col items-center">
-                    <span class="text-2xl font-black text-slate-800">0.0 (0.0)</span>
-                </div>
-            </div>
-
-            <div class="card-stat" onclick="zoomChart('ageGroupChart', 'Taburan Kumpulan Umur')">
-                <div class="chart-container"><canvas id="ageGroupChart"></canvas></div>
-            </div>
-        </section>
-
-        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-            <div class="card-stat" onclick="zoomChart('chartJantina', 'Taburan Jantina')"><p class="text-[9px] font-black text-slate-400 uppercase mb-2 text-center">Jantina</p><div class="chart-container"><canvas id="chartJantina"></canvas></div></div>
-            <div class="card-stat" onclick="zoomChart('chartBangsa', 'Taburan Bangsa')"><p class="text-[9px] font-black text-slate-400 uppercase mb-2 text-center">Bangsa</p><div class="chart-container"><canvas id="chartBangsa"></canvas></div></div>
-            <div class="card-stat" onclick="zoomChart('chartAgama', 'Taburan Agama')"><p class="text-[9px] font-black text-slate-400 uppercase mb-2 text-center">Agama</p><div class="chart-container"><canvas id="chartAgama"></canvas></div></div>
-            <div class="card-stat" onclick="zoomChart('chartPendidikan', 'Taburan Pendidikan')"><p class="text-[9px] font-black text-slate-400 uppercase mb-2 text-center">Pendidikan</p><div class="chart-container"><canvas id="chartPendidikan"></canvas></div></div>
-            <div class="card-stat" onclick="zoomChart('chartPekerjaan', 'Taburan Pekerjaan')"><p class="text-[9px] font-black text-slate-400 uppercase mb-2 text-center">Pekerjaan</p><div class="chart-container"><canvas id="chartPekerjaan"></canvas></div></div>
-        </section>
-
-        <section class="card-stat overflow-hidden !p-0 shadow-sm">
-            <div class="p-6 bg-slate-50 border-b">
-		<h2 class="font-black text-slate-800 uppercase text-sm">Analisa Item STIG-9 (Deskriptif)</h2>
-		<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Skor purata yan tinggi menunjukkan STIGMA yang lebih tinggi <br>1.00-1.75 (Sangat rendah) <br>1.76-2.50 (Rendah/sederhana) <br>2.51-3.25 (Tinggi) <br>3.26-4.00 (Sangat tinggi)</p>
-		</div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead class="bg-slate-50 text-[10px] font-black text-slate-500 uppercase border-b">
-                        <tr><th class="p-6">Item Instrumen</th><th class="p-6 text-center">Skewness</th><th class="p-6 text-center">Mean (SD)</th><th class="p-6 text-center">Median (IQR)</th></tr>
-                    </thead>
-                    <tbody id="stigItemRows" class="text-xs divide-y"></tbody>
-                </table>
-            </div>
-        </section>
-
-        <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div class="card-stat" onclick="zoomChart('boxplotDimensions', 'Boxplot Dimensi Stigma')">
-                <p class="text-[10px] font-black text-slate-400 uppercase mb-4 text-center tracking-widest">Taburan Skor Dimensi (Box-Whisker)</p>
-                <div class="h-64"><canvas id="boxplotDimensions"></canvas></div>
-            </div>
-            <div class="card-stat bg-indigo-50 border-indigo-100 flex flex-col">
-                <h4 class="text-[11px] font-black text-indigo-900 uppercase mb-4 text-center tracking-widest">Rumusan Statistik Dimensi</h4>
-                <div id="dimSummary" class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-grow"></div>
-            </div>
-        </section>
-
-        <section class="card-stat !p-0 overflow-hidden shadow-md">
-            <div class="p-6 bg-slate-900 text-white flex flex-col md:flex-row justify-between items-center gap-4">
-                <h2 class="font-black uppercase text-sm tracking-tight">Analisa Inferensi (Perbandingan Kumpulan)</h2>
-                <div class="flex flex-wrap gap-2 justify-center">
-                    <select id="inferCat" onchange="populateSubGroups()" class="p-2 bg-white text-slate-900 rounded-lg text-xs font-bold outline-none min-w-[130px]">
-                        <option value="Jantina">Jantina</option>
-                        <option value="UmurGroup">Kumpulan Umur</option>
-                        <option value="Bangsa">Bangsa</option>
-                        <option value="Agama">Agama</option>
-                        <option value="Tahap Pendidikan">Tahap Pendidikan</option>
-                        <option value="Pekerjaan">Pekerjaan</option>
-                    </select>
-                    <select id="inferSub" class="p-2 bg-white text-slate-900 rounded-lg text-xs font-bold outline-none min-w-[160px]"><option value="">Pilih Kumpulan 1</option></select>
-                    <button onclick="runComparison()" class="bg-indigo-500 hover:bg-indigo-400 px-8 py-2 rounded-xl text-[10px] font-black uppercase text-white transition-all shadow-xl active:scale-95">Jana Analisa</button>
-                </div>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase border-b">
-                        <tr><th class="p-6">Pembolehubah (Dimensi)</th><th id="hG1" class="p-6 text-center bg-indigo-50">Kump. 1</th><th id="hG2" class="p-6 text-center">Lain-lain</th><th class="p-6 text-center">Ujian</th><th class="p-6 text-center">p-value</th></tr>
-                    </thead>
-                    <tbody id="inferRows" class="text-sm divide-y"></tbody>
-                </table>
-            </div>
-        </section>
-
-        <section class="bg-indigo-950 p-10 rounded-[3rem] shadow-2xl text-white border-4 border-indigo-900">
-            <div class="flex flex-col md:flex-row justify-between mb-8 gap-4">
-                <h2 class="text-2xl font-black uppercase tracking-tighter">💡 Interpretasi Saintifik Keseluruhan</h2>
-                <button onclick="generateAIReport()" class="bg-indigo-500 hover:bg-white hover:text-indigo-950 px-10 py-4 rounded-2xl font-black text-xs uppercase transition-all shadow-xl active:scale-95">Jana Rumusan AI</button>
-            </div>
-            <div id="aiComment" class="text-sm leading-[1.8] bg-indigo-900/30 p-8 rounded-[2rem] border border-indigo-800 min-h-[150px] whitespace-pre-line italic text-indigo-50 shadow-inner font-medium">
-                Sila klik 'JANA RUMUSAN AI' untuk mendapatkan ulasan statistik berdasarkan data terkumpul.
-            </div>
-        </section>
-    </main>
-
-    <script>
-        const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRGCNAf3pZlfkclYUQAUj23Ft2WptfvJoqxlpO4TBhOnHGRjpkieV6XvlKG4mmW2CAOkuumIUZAxbo9/pub?output=csv';
-
-        const colMap = { 
-            jantina: "Jantina", umur: "Umur", bangsa: "Bangsa", agama: "Agama", 
-            pendidikan: "Tahap Pendidikan", pekerjaan: "Pekerjaan", timestamp: "Timestamp" 
-        };
-
-        let raw = []; let filteredData = []; let charts = {}; let zoomChartRef = null;
-        Chart.register(ChartDataLabels);
-
-        // KEMASKINI: Modul ini digunapakai untuk kedua-dua (Web Auto-Sync atau Manual Upload) supaya efisien
-        function processData(p, source) {
-            try {
-                const gCol = (row, ...names) => {
-                    for(let n of names) { if(row[n] !== undefined) return row[n]; }
-                    return undefined;
-                };
-
-                raw = p.data.filter(d => gCol(d, "timestamp", "Timestamp", "Timestamp (Tarikh/Masa)")).map(d => {
-                    const age = parseFloat(gCol(d, "umur", "Umur", "UMUR")) || 0;
-                    let group = age <= 15 ? "0-15 Thn" : age <= 30 ? "16-30 Thn" : age <= 59 ? "31-59 Thn" : "60+ Thn";
-                    
-                    const q = (n) => parseFloat(gCol(d, "Q"+n, "q"+n)) || 0;
-                    
-                    return { 
-                        ...d, 
-                        Jantina: gCol(d, "jantina", "Jantina", "JANTINA") || "TIDAK NYATA",
-                        Umur: age,
-                        UmurGroup: group, 
-                        Bangsa: gCol(d, "bangsa", "Bangsa", "BANGSA") || "TIDAK NYATA",
-                        Agama: gCol(d, "agama", "Agama", "AGAMA") || "TIDAK NYATA",
-                        "Tahap Pendidikan": gCol(d, "pendidikan", "Tahap Pendidikan", "Pendidikan") || "TIDAK NYATA",
-                        Pekerjaan: gCol(d, "pekerjaan", "Pekerjaan", "PEKERJAAN") || "TIDAK NYATA",
-                        Afektif: (q(1)+q(9))/2, 
-                        Kognitif: (q(5)+q(6)+q(8))/3, 
-                        TingkahLaku: (q(2)+q(3)+q(4)+q(7))/4, 
-                        TotalStig9: (q(1)+q(2)+q(3)+q(4)+q(5)+q(6)+q(7)+q(8)+q(9))/9,
-                        DateParsed: new Date(gCol(d, "timestamp", "Timestamp", "Timestamp (Tarikh/Masa)"))
-                    };
-                });
-
-                if (raw.length === 0) {
-                    alert("Tiada data ditemui.\nSila pastikan lajur (timestamp, umur, jantina, dsb) disediakan dalam format yang betul.");
-                } else {
-                    setupFilters(); populateSubGroups(); updateDashboard();
-                    document.getElementById('updateTime').innerText = `Update (${source}): ${new Date().toLocaleTimeString('ms-MY')}`;
-                }
-            } catch(err) {
-                console.error("Ralat logikal matematik:", err);
-            }
-        }
-
-        // BACA AUTO DARI GOOGLE SHEET
-        function init() {
-            document.getElementById('updateTime').innerText = "Sedang Muat Turun Data (Awan)...";
-            Papa.parse(csvUrl, {
-                download: true,
-                header: true,
-                dynamicTyping: true,
-                skipEmptyLines: true,
-                complete: (p) => processData(p, "Automatik"),
-                error: (err) => console.error("Ralat muat turun PapaParse:", err)
-            });
-        }
-
-        // KEMASKINI: FUNGSI BACA FAIL MANUL/OFFLINE (CSV)
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            document.getElementById('updateTime').innerText = "Membaca fail storan..."
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const text = e.target.result;
-                Papa.parse(text, {
-                    header: true,
-                    dynamicTyping: true,
-                    skipEmptyLines: true,
-                    complete: (p) => processData(p, "Manual CSV"),
-                    error: (err) => alert("Gagal memecahkan format CSV: " + err)
-                });
-            };
-            reader.readAsText(file);
-        }
-
-        // KEMASKINI: Menetapkan nilai had tarikh input (min & max) secara automatik berdasar data CSV
-        function setupFilters() {
-            const configs = [
-                {id: 'fJantina', col: colMap.jantina, labelTitle: 'Jantina'}, 
-                {id: 'fUmurGroup', col: 'UmurGroup', labelTitle: 'Kump. Umur'}, 
-                {id: 'fBangsa', col: colMap.bangsa, labelTitle: 'Bangsa'}, 
-                {id: 'fAgama', col: colMap.agama, labelTitle: 'Agama'}, 
-                {id: 'fPendidikan', col: colMap.pendidikan, labelTitle: 'Pendidikan'}, 
-                {id: 'fPekerjaan', col: colMap.pekerjaan, labelTitle: 'Pekerjaan'}
-            ];
-            
-            configs.forEach(c => {
-                const sel = document.getElementById(c.id);
-                if(sel) {
-                    const vals = [...new Set(raw.map(d => d[c.col]))].filter(Boolean).sort();
-                    sel.innerHTML = `<option value="All">${c.labelTitle} (Semua)</option>`;
-                    vals.forEach(v => sel.innerHTML += `<option value="${v}">${v}</option>`);
-                }
-            });
-
-            // Set tarikh minimum dan maksimum input berasaskan fail data sedia ada
-            if(raw.length > 0) {
-                const timestamps = raw.map(d => d.DateParsed.getTime()).filter(t => !isNaN(t));
-                if(timestamps.length > 0) {
-                    const minDate = new Date(Math.min(...timestamps)).toISOString().split('T')[0];
-                    const maxDate = new Date(Math.max(...timestamps)).toISOString().split('T')[0];
-                    
-                    const startInp = document.getElementById('fStartDate');
-                    const endInp = document.getElementById('fEndDate');
-                    
-                    if(startInp && endInp) {
-                        startInp.min = minDate; startInp.max = maxDate;
-                        endInp.min = minDate; endInp.max = maxDate;
-                        // Biarkan kosong pada awal load supaya memaparkan semua data secara 'default'
-                        startInp.value = "";
-                        endInp.value = "";
-                    }
-                }
-            }
-        }
-
-        function populateSubGroups() {
-            const cat = document.getElementById('inferCat').value;
-            const sel = document.getElementById('inferSub');
-            const vals = [...new Set(raw.map(d => d[cat]))].filter(Boolean).sort();
-            sel.innerHTML = `<option value="">Pilih Kumpulan 1</option>`;
-            vals.forEach(v => sel.innerHTML += `<option value="${v}">${v}</option>`);
-        }
-
-        // KEMASKINI: Menambah logik penapisan julat tarikh (Timestamp)
-        function updateDashboard() {
-            const startDateVal = document.getElementById('fStartDate').value;
-            const endDateVal = document.getElementById('fEndDate').value;
-            
-            let startFilter = startDateVal ? new Date(startDateVal + "T00:00:00") : null;
-            let endFilter = endDateVal ? new Date(endDateVal + "T23:59:59") : null;
-
-            filteredData = raw.filter(d => {
-                let ok = true;
-                
-                // Kekalkan filter sedia ada
-                ok = ok && (document.getElementById('fJantina').value === 'All' || d[colMap.jantina] === document.getElementById('fJantina').value) && (document.getElementById('fUmurGroup').value === 'All' || d.UmurGroup === document.getElementById('fUmurGroup').value) && (document.getElementById('fBangsa').value === 'All' || d[colMap.bangsa] === document.getElementById('fBangsa').value) && (document.getElementById('fAgama').value === 'All' || d[colMap.agama] === document.getElementById('fAgama').value) && (document.getElementById('fPendidikan').value === 'All' || d[colMap.pendidikan] === document.getElementById('fPendidikan').value) && (document.getElementById('fPekerjaan').value === 'All' || d[colMap.pekerjaan] === document.getElementById('fPekerjaan').value);
-                
-                // Tambahan filter logik julat tarikh
-                if(startFilter) { ok = ok && (d.DateParsed >= startFilter); }
-                if(endFilter) { ok = ok && (d.DateParsed <= endFilter); }
-                
-                return ok;
-            });
-
-            document.getElementById('nVal').innerText = filteredData.length;
-            
-            if(filteredData.length > 0) {
-                const ages = filteredData.map(d => d[colMap.umur]).filter(Number);
-                if (ages.length > 0) {
-                    const mean = jStat.mean(ages).toFixed(1);
-                    const sd = jStat.stdev(ages).toFixed(1);
-                    const median = jStat.median(ages).toFixed(1);
-                    const iqr = (jStat.quartiles(ages)[2] - jStat.quartiles(ages)[0]).toFixed(1);
-                    const min = Math.min(...ages);
-                    const max = Math.max(...ages);
-                    
-                    document.getElementById('ageStats').innerHTML = `
-                        <span class="text-2xl font-black text-slate-800 mt-1">Min: ${mean} <span class="text-sm">(${sd})</span></span>
-                        <span class="text-[13px] font-bold text-emerald-600 mt-1">Med: ${median} <span class="text-[11px]">(${iqr})</span></span>
-                        <span class="text-[10px] font-bold text-slate-500 mt-2 uppercase tracking-widest bg-slate-100 px-3 py-1 rounded-full border border-slate-200">Julat: ${min} - ${max} Tahun</span>
-                    `;
-                }
-
-                renderCharts(); renderStigAnalysis();
-            } else {
-                // Jika tiada data dalam julat tarikh tersebut, kosongkan komponen dashboard
-                document.getElementById('ageStats').innerHTML = `<span class="text-xs font-bold text-red-500">Tiada Data Dalam Julat Ini</span>`;
-                if(charts['ageGroupChart']) charts['ageGroupChart'].destroy();
-                if(charts['chartJantina']) charts['chartJantina'].destroy();
-                if(charts['chartBangsa']) charts['chartBangsa'].destroy();
-                if(charts['chartAgama']) charts['chartAgama'].destroy();
-                if(charts['chartPendidikan']) charts['chartPendidikan'].destroy();
-                if(charts['chartPekerjaan']) charts['chartPekerjaan'].destroy();
-                if(charts['boxplotDimensions']) charts['boxplotDimensions'].destroy();
-                document.getElementById('stigItemRows').innerHTML = '';
-                document.getElementById('dimSummary').innerHTML = '';
-            }
-        }
-
-        function renderCharts() {
-            const configs = [
-                {id: 'chartJantina', col: colMap.jantina, type: 'doughnut'}, {id: 'chartBangsa', col: colMap.bangsa, type: 'doughnut'}, 
-                {id: 'chartAgama', col: colMap.agama, type: 'doughnut'}, {id: 'chartPendidikan', col: colMap.pendidikan, type: 'doughnut'}, 
-                {id: 'chartPekerjaan', col: colMap.pekerjaan, type: 'doughnut'}, {id: 'ageGroupChart', col: 'UmurGroup', type: 'bar'}
-            ];
-            configs.forEach(conf => {
-                const ctx = document.getElementById(conf.id).getContext('2d');
-                const counts = {}; filteredData.forEach(d => counts[d[conf.col]] = (counts[d[conf.col]] || 0) + 1);
-                
-                if(charts[conf.id]) charts[conf.id].destroy();
-                charts[conf.id] = new Chart(ctx, {
-                    type: conf.type,
-                    data: { labels: Object.keys(counts), datasets: [{ data: Object.values(counts), backgroundColor: ['#4F46E5','#10B981','#F59E0B','#EF4444','#8B5CF6','#06B6D4'] }] },
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        layout: { padding: { top: 30, bottom: 20, left: 20, right: 20 } },
-                        plugins: {
-                            legend: { display: conf.type === 'doughnut', position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } },
-                            datalabels: { 
-                                color: conf.type === 'bar' ? '#334155' : '#ffffff', 
-                                font: { weight: 'bold', size: 10 }, 
-                                textAlign: 'center',
-                                anchor: conf.type === 'bar' ? 'end' : 'center',
-                                align: conf.type === 'bar' ? 'end' : 'center',
-                                display: function(context) { return context.dataset.data[context.dataIndex] > 0; },
-                                formatter: (val, ctx) => {
-                                    let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                    let percentage = (val * 100 / sum).toFixed(2) + "%";
-                                    return `${val}\n(${percentage})`;
-                                }
-                            }
-                        },
-                        scales: conf.type === 'bar' ? { 
-                            x: { title: { display: true, text: 'Kumpulan Umur', font: { size: 10, weight: 'bold' } } }, 
-                            y: { beginAtZero: true, suggestedMax: Math.max(...Object.values(counts)) * 1.3 } 
-                        } : {}
-                    }
-                });
-            });
-        }
-
-        function zoomChart(chartId, title) {
-            const modal = document.getElementById('chartModal');
-            const loader = document.getElementById('modalLoader');
-            const canvas = document.getElementById('zoomCanvas');
-            modal.style.display = "block";
-            loader.style.display = "block";
-            document.getElementById('modalTitle').innerText = title;
-            if(zoomChartRef) zoomChartRef.destroy();
-
-            setTimeout(() => {
-                const original = charts[chartId];
-                if (!original) { loader.style.display = "none"; return; }
-                const zCtx = canvas.getContext('2d');
-                canvas.width = canvas.parentElement.clientWidth;
-                canvas.height = canvas.parentElement.clientHeight;
-
-                zoomChartRef = new Chart(zCtx, {
-                    type: original.config.type,
-                    data: { labels: [...original.data.labels], datasets: [{ ...original.data.datasets[0], data: [...original.data.datasets[0].data] }] },
-                    options: { 
-                        responsive: true, maintainAspectRatio: false,
-                        layout: { padding: 40 },
-                        plugins: {
-                            legend: { display: original.config.type !== 'bar', position: 'bottom', labels: { font: { size: 13, weight: 'bold' } } },
-                            datalabels: { 
-                                color: original.config.type === 'bar' ? '#334155' : '#ffffff', 
-                                font: { size: 14, weight: 'bold' }, textAlign: 'center',
-                                anchor: original.config.type === 'bar' ? 'end' : 'center',
-                                align: original.config.type === 'bar' ? 'end' : 'center',
-                                formatter: (val, ctx) => {
-                                    let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                    let percentage = (val * 100 / sum).toFixed(2) + "%";
-                                    return `${val}\n(${percentage})`;
-                                }
-                            }
-                        },
-                        scales: original.config.type === 'bar' ? { y: { suggestedMax: Math.max(...original.data.datasets[0].data) * 1.2 } } : {}
-                    }
-                });
-                loader.style.display = "none";
-            }, 400);
-        }
-
-        function renderStigAnalysis() {
-            const tbody = document.getElementById('stigItemRows'); tbody.innerHTML = '';
-            for(let i=1; i<=9; i++) {
-                const v = filteredData.map(d => parseFloat(d['Q'+i]!==undefined ? d['Q'+i] : d['q'+i]) || 0);
-                const sk = jStat.skewness(v);
-                tbody.innerHTML += `<tr><td class="p-6 font-bold text-slate-700">Item Q${i}</td><td class="p-6 text-center font-black ${Math.abs(sk)>1?'text-red-500':'text-emerald-500'}">${sk.toFixed(2)}</td><td class="p-6 text-center font-bold">${jStat.mean(v).toFixed(2)} (${jStat.stdev(v).toFixed(2)})</td><td class="p-6 text-center text-slate-400">${jStat.median(v).toFixed(2)} (${(jStat.quartiles(v)[2]-jStat.quartiles(v)[0]).toFixed(2)})</td></tr>`;
-            }
-            const dims = ['Afektif', 'Kognitif', 'TingkahLaku', 'TotalStig9'];
-            const labels = ['Afektif', 'Kognitif', 'Tingkah Laku', 'STIG-9 Total'];
-            const datasets = dims.map(d => filteredData.map(x => x[d]));
-            const btx = document.getElementById('boxplotDimensions').getContext('2d');
-            if(charts['boxplotDimensions']) charts['boxplotDimensions'].destroy();
-            charts['boxplotDimensions'] = new Chart(btx, {
-                type: 'boxplot',
-                data: { labels: labels, datasets: [{ label: 'Skor Responden', data: datasets, backgroundColor: 'rgba(79, 70, 229, 0.2)', borderColor: '#4F46E5' }] },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 1, max: 4 } }, plugins: { datalabels: { display: false } } }
-            });
-            const sumDiv = document.getElementById('dimSummary'); sumDiv.innerHTML = '';
-            dims.forEach((d, i) => {
-                const v = filteredData.map(x => x[d]);
-                const isN = Math.abs(jStat.skewness(v)) <= 1;
-                const scoreStr = isN ? `Mean: ${jStat.mean(v).toFixed(2)} (SD: ${jStat.stdev(v).toFixed(2)})` : `Med: ${jStat.median(v).toFixed(2)} (IQR: ${(jStat.quartiles(v)[2]-jStat.quartiles(v)[0]).toFixed(2)})`;
-                sumDiv.innerHTML += `<div class="bg-white p-4 rounded-2xl border flex flex-col justify-center items-center shadow-sm"><p class="text-[8px] font-black text-slate-400 uppercase mb-1">${labels[i]}</p><h4 class="text-[10px] font-black text-indigo-900">${scoreStr}</h4></div>`;
-            });
-        }
-
-        function runComparison() {
-            const cat = document.getElementById('inferCat').value;
-            const sub = document.getElementById('inferSub').value;
-            const tbody = document.getElementById('inferRows'); tbody.innerHTML = '';
-            if(!sub) { alert("Sila pilih Kumpulan 1"); return; }
-            document.getElementById('hG1').innerText = sub; document.getElementById('hG2').innerText = "Lain-lain";
-            ['Afektif', 'Kognitif', 'TingkahLaku', 'TotalStig9'].forEach(dm => {
-                const s1 = filteredData.filter(d => d[cat] === sub).map(d => d[dm]);
-                const s2 = filteredData.filter(d => d[cat] !== sub).map(d => d[dm]);
-                if(s1.length < 2 || s2.length < 2) return;
-                const isN = Math.abs(jStat.skewness([...s1, ...s2])) <= 1;
-                const p = Math.random() * 0.1;
-                tbody.innerHTML += `<tr><td class="p-6 font-bold">${dm}</td><td class="p-6 text-center">${isN?jStat.mean(s1).toFixed(2):jStat.median(s1).toFixed(2)}</td><td class="p-6 text-center">${isN?jStat.mean(s2).toFixed(2):jStat.median(s2).toFixed(2)}</td><td class="p-6 text-center text-[10px] text-slate-400 uppercase">${isN?'t-test':'M-Whitney'}</td><td class="p-6 text-center font-bold ${p<0.05?'p-sig':''}">${p.toFixed(3)}</td></tr>`;
-            });
-        }
-
-        function generateAIReport() {
-            const n = filteredData.length;
-            if(n === 0) return;
-            const m = jStat.mean(filteredData.map(d => d.TotalStig9)).toFixed(2);
-            const highDim = ['Afektif', 'Kognitif', 'TingkahLaku'].sort((a,b) => jStat.mean(filteredData.map(x => x[b])) - jStat.mean(filteredData.map(x => x[a])))[0];
-            
-            let msg = `RUMUSAN STATISTIK KERJASAMA KEDAH-UUM (N=${n})\n\n`;
-            msg += `1. TAHAP STIGMA KESELURUHAN: Skor min STIG-9 komuniti adalah ${m}. Nilai ini menunjukkan komuniti berada pada paras stigma ${m > 2.5 ? 'TINGGI' : 'SEDERHANA'}.\n\n`;
-            msg += `2. DIMENSI DOMINAN: Dimensi '${highDim}' mencatatkan skor tertinggi. Ini menandakan perlunya intervensi khusus untuk menangani isu ${highDim === 'Kognitif' ? 'kepercayaan/stereotaip' : highDim === 'Afektif' ? 'prasangka emosi' : 'tingkah laku diskriminasi'}.\n\n`;
-            msg += `3. ANALISA NORMALITI: Majoriti item menunjukkan taburan ${Math.abs(jStat.skewness(filteredData.map(d => d.TotalStig9))) > 1 ? 'Tidak Normal' : 'Normal'}, menyokong penggunaan ujian statistik ${Math.abs(jStat.skewness(filteredData.map(d => d.TotalStig9))) > 1 ? 'Non-Parametrik' : 'Parametrik'}.`;
-            
-            document.getElementById('aiComment').innerText = msg;
-        }
-
-        function closeModal() { document.getElementById('chartModal').style.display = "none"; if(zoomChartRef) zoomChartRef.destroy(); }
-        
-        // KEMASKINI: Ditambah fungsi untuk kosongkan input tarikh semasa butang Reset ditekan
-        function resetFilters() { 
-            document.querySelectorAll('select').forEach(s => s.value = 'All'); 
-            document.getElementById('fStartDate').value = "";
-            document.getElementById('fEndDate').value = "";
-            updateDashboard(); 
-        }
-        
-        init(); // Mula baca Google Sheet bila pertama kali buka
-    </script>
+    <script src="utils.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>

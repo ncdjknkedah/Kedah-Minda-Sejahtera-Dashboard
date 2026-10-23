@@ -3,228 +3,1103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KMS2026 Dashboard | Program Jelajah Kedah Minda Sejahtera</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>STIG-9 Analytics Pro v11.0 – Stigma & Penilaian Program</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://unpkg.com/@sgratzl/chartjs-chart-boxplot@3.6.0/build/index.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.9.4/jstat.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .card-stat { transition: all 0.3s ease; border: 1px solid #e2e8f0; border-radius: 1.5rem; background: white; padding: 1.2rem; }
+        .card-click { cursor: pointer; }
+        .card-click:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .chart-container { position: relative; height: 250px; width: 100%; }
+        .chart-tall { position: relative; height: 340px; width: 100%; }
+        #chartModal { display: none; position: fixed; z-index: 9999; inset: 0; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(8px); overflow-y: auto; }
+        .modal-content { background: white; margin: 2% auto; padding: 2rem; border-radius: 2rem; width: 92%; max-width: 1100px; position: relative; }
+        .close-btn { position: absolute; top: 0.6rem; right: 1.4rem; font-size: 2.5rem; cursor: pointer; color: #ef4444; font-weight: bold; }
+        .p-sig { color: #059669; font-weight: bold; background-color: #ecfdf5; padding: 2px 6px; border-radius: 4px; border: 1px solid #10b981; }
+        .lvl { display:inline-block; padding:2px 8px; border-radius:999px; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.04em; }
+        .lvl-1 { background:#ecfdf5; color:#047857; }
+        .lvl-2 { background:#fefce8; color:#a16207; }
+        .lvl-3 { background:#fff7ed; color:#c2410c; }
+        .lvl-4 { background:#fef2f2; color:#b91c1c; }
+        .info-dot { display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:999px; background:#e0e7ff; color:#3730a3; font:italic 900 11px Georgia,serif; vertical-align:middle; margin-left:6px; cursor:pointer; border:none; text-transform:none; }
+        .info-dot:hover { background:#4f46e5; color:#fff; }
+        #infoModal { display:none; position:fixed; z-index:10000; inset:0; background:rgba(15,23,42,.85); backdrop-filter:blur(6px); }
+        .info-box { background:#fff; width:94%; max-width:1080px; height:90vh; margin:4vh auto; border-radius:1.75rem; display:flex; overflow:hidden; }
+        .info-nav { width:230px; flex-shrink:0; background:#1e1b4b; color:#c7d2fe; padding:1.25rem .75rem; overflow-y:auto; }
+        .info-nav a { display:block; padding:.55rem .8rem; border-radius:.75rem; font-size:12px; font-weight:700; cursor:pointer; }
+        .info-nav a:hover, .info-nav a.on { background:#4f46e5; color:#fff; }
+        .info-body { flex:1; overflow-y:auto; padding:2rem 2.25rem; font-size:14px; line-height:1.75; color:#334155; scroll-behavior:smooth; }
+        .info-body h3 { font-size:18px; font-weight:900; color:#1e1b4b; margin:0 0 .75rem; padding-top:.25rem; text-transform:uppercase; letter-spacing:-.01em; }
+        .info-body h4 { font-size:13px; font-weight:800; color:#4338ca; margin:1.1rem 0 .3rem; text-transform:uppercase; }
+        .info-body section { padding-bottom:1.75rem; margin-bottom:1.75rem; border-bottom:1px dashed #e2e8f0; }
+        .info-body ul { list-style:disc; padding-left:1.25rem; } .info-body li { margin:.2rem 0; }
+        .info-body table { width:100%; font-size:12.5px; border-collapse:collapse; margin:.5rem 0; }
+        .info-body th, .info-body td { border:1px solid #e2e8f0; padding:.4rem .6rem; text-align:left; vertical-align:top; }
+        .info-body th { background:#f1f5f9; font-size:11px; text-transform:uppercase; }
+        .callout { background:#eef2ff; border-left:4px solid #4f46e5; padding:.75rem 1rem; border-radius:.5rem; margin:.75rem 0; }
+        .callout.warn { background:#fffbeb; border-color:#f59e0b; }
+        @media (max-width:768px){ .info-nav{display:none} .info-body{padding:1.25rem} }
+        .sec-title { font-weight:900; text-transform:uppercase; letter-spacing:-.01em; }
+        select, input[type=date] { min-height: 42px; }
+    </style>
 </head>
-<body>
-    <div class="app-container">
-        <!-- Sidebar/Header -->
-        <header class="header">
-            <div class="logo-section">
-                <img src="logo.png" alt="KMS2026 Logo" class="logo-img">
-                <div class="brand-text">
-                    <h1>Kedah Minda Sejahtera</h1>
-                    <p>Dashboard Pemantauan Program Jelajah 2026</p>
-                </div>
-            </div>
-            <div class="filters">
-                <div class="filter-group">
-                    <label for="districtFilter">Daerah</label>
-                    <select id="districtFilter">
-                        <option value="all">Semua Daerah</option>
-                    </select>
-                </div>
-                <button id="refreshBtn" class="refresh-btn">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-                    Refresh
-                </button>
-            </div>
-        </header>
+<body class="bg-[#F8FAFC] text-slate-900">
 
-        <main class="content">
-            <!-- KPI Cards -->
-            <section class="kpi-grid">
-                <div class="kpi-card" id="card-responses">
-                    <div class="kpi-icon blue">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                    </div>
-                    <div class="kpi-info">
-                        <h3>Jumlah Responden</h3>
-                        <div class="value" id="totalResponses">0</div>
-                        <p class="subtext">Peserta yang menjawab tinjauan</p>
-                    </div>
-                </div>
-
-                <div class="kpi-card" id="card-stigma">
-                    <div class="kpi-icon purple">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                    </div>
-                    <div class="kpi-info">
-                        <h3>Purata Skor Stigma</h3>
-                        <div class="value-row">
-                            <div class="value" id="avgStigma">0.00</div>
-                            <div class="status-badge" id="stigmaStatus">-</div>
-                        </div>
-                        <p class="interpretation-text" id="stigmaDesc">Sila muat data...</p>
-                    </div>
-                </div>
-
-                <div class="kpi-card" id="card-visitors">
-                    <div class="kpi-icon green">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                    </div>
-                    <div class="kpi-info">
-                        <h3>Kehadiran Pengunjung (Data Manual)</h3>
-                        <div class="value" id="totalVisitors">0</div>
-                        <div class="progress-container">
-                            <div class="progress-bar" id="visitorProgress" style="width: 0%"></div>
-                            <span id="visitorTargetText">0% dari sasaran</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="kpi-card" id="card-rate">
-                    <div class="kpi-icon orange">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                    </div>
-                    <div class="kpi-info">
-                        <h3>Kadar Respon</h3>
-                        <div class="value" id="responseRate">0%</div>
-                        <div class="progress-container">
-                            <div class="progress-bar" id="rateProgress" style="width: 0%"></div>
-                            <span id="rateTargetText">Sasaran: 30%</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Interpretation Guide -->
-            <section class="interpretation-guide">
-                <div class="guide-header">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                    <span>Garis Panduan Interpretasi Skor (Skala 1-4)</span>
-                </div>
-                <div class="guide-grid">
-                    <div class="guide-item excellent">
-                        <span class="range">1.00 - 1.75</span>
-                        <span class="label">Sangat Rendah</span>
-                        <p>Penerimaan sangat tinggi & inklusif</p>
-                    </div>
-                    <div class="guide-item good">
-                        <span class="range">1.76 - 2.50</span>
-                        <span class="label">Rendah/Sederhana</span>
-                        <p>Kesedaran asas, ada keraguan sosial kecil</p>
-                    </div>
-                    <div class="guide-item warning">
-                        <span class="range:">2.51 - 3.25</span>
-                        <span class="label">Tinggi</span>
-                        <p>Stigma ketara, perlu kempen kesedaran</p>
-                    </div>
-                    <div class="guide-item critical">
-                        <span class="range">3.26 - 4.00</span>
-                        <span class="label">Sangat Tinggi</span>
-                        <p>Diskriminasi & stereotaip ekstrem</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Charts Grid -->
-            <section class="charts-grid">
-                <!-- Stigma Dimensions -->
-                <div class="chart-container span-2">
-                    <div class="chart-header">
-                        <h2>Analisis Dimensi Stigma (Stig-9)</h2>
-                        <p>Perbandingan antara Afektif, Kognitif dan Tingkah Laku</p>
-                    </div>
-                    <div class="chart-body">
-                        <canvas id="stigmaDimensionsChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- District Comparison -->
-                <div class="chart-container span-4">
-                    <div class="chart-header">
-                        <h2>Pencapaian Mengikut Daerah</h2>
-                        <p>Kehadiran Pengunjung vs Sasaran (300)</p>
-                    </div>
-                    <div class="chart-body">
-                        <canvas id="districtComparisonChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Visitor Profile Section -->
-                <div class="chart-container span-6">
-                    <div class="chart-header">
-                        <h2>Profil Pengunjung</h2>
-                        <p>Analisis Demografi Responden</p>
-                    </div>
-                    <div class="profile-grid">
-                        <div class="profile-chart">
-                            <h4>Kumpulan Umur</h4>
-                            <canvas id="ageChart"></canvas>
-                        </div>
-                        <div class="profile-chart">
-                            <h4>Bangsa</h4>
-                            <canvas id="raceChart"></canvas>
-                        </div>
-                        <div class="profile-chart">
-                            <h4>Agama</h4>
-                            <canvas id="religionChart"></canvas>
-                        </div>
-                        <div class="profile-chart">
-                            <h4>Lokasi Kediaman</h4>
-                            <canvas id="locationChart"></canvas>
-                        </div>
-                        <div class="profile-chart">
-                            <h4>Taraf Pendidikan</h4>
-                            <canvas id="educationChart"></canvas>
-                        </div>
-                        <div class="profile-chart">
-                            <h4>Pekerjaan</h4>
-                            <canvas id="jobChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Awareness & Practice Section -->
-                <div class="chart-container span-2">
-                    <div class="chart-header">
-                        <h2>Kesedaran & Amalan</h2>
-                        <p>Kadar "Ya" bagi setiap soalan</p>
-                    </div>
-                    <div class="awareness-grid">
-                        <div class="awareness-item">
-                            <span class="awareness-label">Amalan Kendiri</span>
-                            <div class="awareness-bar-bg">
-                                <div id="amalanBar" class="awareness-bar-fill green"></div>
-                                <span id="amalanPercent" class="awareness-val">0%</span>
-                            </div>
-                        </div>
-                        <div class="awareness-item">
-                            <span class="awareness-label">Lihat Logo</span>
-                            <div class="awareness-bar-bg">
-                                <div id="logoBar" class="awareness-bar-fill blue"></div>
-                                <span id="logoPercent" class="awareness-val">0%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Program Evaluation Section -->
-                <div class="chart-container span-4">
-                    <div class="chart-header">
-                        <h2>Penilaian Program</h2>
-                        <p>Skor Purata (Skala Likert 1-5)</p>
-                    </div>
-                    <div class="chart-body">
-                        <canvas id="evaluationChart"></canvas>
-                    </div>
-                </div>
-            </section>
-        </main>
-
-        <footer class="footer">
-            <p>&copy; 2026 JKN Kedah | Unit Kawalan Penyakit Tidak Berjangkit (NCD)</p>
-        </footer>
+    <!-- MODAL ZOOM -->
+    <div id="chartModal" onclick="if(event.target===this) closeModal()">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h3 id="modalTitle" class="text-xl font-black text-slate-800 uppercase mb-4 text-center"></h3>
+            <div class="h-[560px] w-full relative"><canvas id="zoomCanvas"></canvas></div>
+        </div>
     </div>
 
-    <script src="utils.js"></script>
-    <script src="app.js"></script>
+    <!-- MODAL PANDUAN -->
+    <div id="infoModal" onclick="if(event.target===this) closeInfo()">
+        <div class="info-box">
+            <nav class="info-nav">
+                <p class="text-[10px] font-black uppercase tracking-widest text-indigo-300 px-3 mb-3">📘 Panduan</p>
+                <a data-t="info-stig" onclick="openInfo('stig')">1. Tentang STIG-9</a>
+                <a data-t="info-item" onclick="openInfo('item')">2. Item STIG-9</a>
+                <a data-t="info-skor" onclick="openInfo('skor')">3. Pengiraan &amp; Tafsiran Skor</a>
+                <a data-t="info-program" onclick="openInfo('program')">4. Penilaian Program</a>
+                <a data-t="info-dash" onclick="openInfo('dash')">5. Panduan Komponen Dashboard</a>
+                <a data-t="info-inferensi" onclick="openInfo('inferensi')">6. Analisa Inferensi</a>
+                <a data-t="info-liputan" onclick="openInfo('liputan')">7. Liputan &amp; Sasaran</a>
+                <a data-t="info-limitasi" onclick="openInfo('limitasi')">8. Kualiti Data &amp; Limitasi</a>
+                <a data-t="info-rujukan" onclick="openInfo('rujukan')">9. Rujukan</a>
+                <button onclick="closeInfo()" class="mt-6 mx-3 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-[11px] font-black uppercase">✕ Tutup</button>
+            </nav>
+            <div class="info-body" id="infoBody" onscroll="syncInfoNav()">
+                <div class="flex justify-end md:hidden mb-2"><button onclick="closeInfo()" class="text-red-500 font-black text-2xl">&times;</button></div>
+
+                <section id="info-stig">
+                    <h3>1. Tentang STIG-9</h3>
+                    <p><b>STIG-9 (Stigma-9 Questionnaire)</b> ialah soal selidik ringkas 9 item untuk mengukur <b>stigma kesihatan mental yang dipersepsikan</b> (<i>perceived stigma</i>) — iaitu sejauh mana seseorang <b>menjangka masyarakat</b> mempunyai kepercayaan, perasaan dan tingkah laku negatif terhadap individu yang pernah dirawat kerana masalah kesihatan mental.</p>
+                    <ul>
+                        <li>Dibangunkan oleh Gierk, Löwe, Murray &amp; Kohlmann di University Medical Center Hamburg-Eppendorf, Jerman, berasaskan <i>Modified Labelling Theory</i> (Link) — penstrukturan semula skala <i>Perceived Devaluation-Discrimination</i>.</li>
+                        <li>Kajian validasi asal (919 pesakit klinik kesihatan mental) menyokong <b>struktur satu faktor</b> dengan ketekalan dalaman yang tinggi.</li>
+                        <li>Item merangkumi aspek <b>kognitif</b> (kepercayaan/stereotaip), <b>afektif</b> (prasangka/emosi) dan <b>tingkah laku</b> (diskriminasi).</li>
+                    </ul>
+                    <div class="callout"><b>Penting untuk tafsiran:</b> setiap item bermula dengan frasa <b>"Saya rasa kebanyakan orang…"</b>. Maka skor tinggi bermaksud responden <b>merasakan stigma dalam komuniti adalah tinggi</b> — ia <u>bukan</u> ukuran langsung sikap stigma peribadi responden.</div>
+                    <h4>Konteks Kempen</h4>
+                    <p>Dalam <b>Kempen Hentikan Stigma, Kesihatan Mental Milik Semua</b> (NCEMH, KKM), STIG-9 digunakan sebagai <i>Random Survey</i> (Item 4j, Lampiran A) untuk membangunkan <b>data asas (baseline) stigma kesihatan mental</b> (Objektif 2.2). Sasaran: sekurang-kurangnya <b>30% daripada sasaran minimum pengunjung</b> menjawab.</p>
+                </section>
+
+                <section id="info-item">
+                    <h3>2. Item STIG-9 (Versi Bahasa Melayu)</h3>
+                    <table>
+                        <tr><th>Item</th><th>"Saya rasa kebanyakan orang…"</th><th>Aspek</th><th>Dimensi*</th></tr>
+                        <tr><td>Q1</td><td>berasa tidak senang apabila seseorang yang pernah dirawat berpindah ke kawasan kejiranan</td><td>Jarak sosial (kejiranan)</td><td>Afektif</td></tr>
+                        <tr><td>Q2</td><td>tidak akan menjalin hubungan dengan seseorang yang pernah dirawat</td><td>Hubungan peribadi</td><td>Tingkah Laku</td></tr>
+                        <tr><td>Q3</td><td>tidak akan melayan permohonan pekerjaan daripada seseorang yang pernah dirawat</td><td>Diskriminasi pekerjaan</td><td>Tingkah Laku</td></tr>
+                        <tr><td>Q4</td><td>teragak-agak meninggalkan anak dengan seseorang yang telah dirawat</td><td>Kepercayaan menjaga anak</td><td>Tingkah Laku</td></tr>
+                        <tr><td>Q5</td><td>menganggap masalah kesihatan mental sebagai tanda kelemahan diri</td><td>Stereotaip kelemahan</td><td>Kognitif</td></tr>
+                        <tr><td>Q6</td><td>bersangka buruk terhadap seseorang yang mempunyai masalah kesihatan mental</td><td>Pandangan negatif</td><td>Kognitif</td></tr>
+                        <tr><td>Q7</td><td>teragak-agak untuk berurusan (perniagaan) dengan seseorang yang pernah dirawat</td><td>Urusan ekonomi</td><td>Tingkah Laku</td></tr>
+                        <tr><td>Q8</td><td>menganggap individu yang pernah dirawat sebagai berbahaya</td><td>Stereotaip bahaya</td><td>Kognitif</td></tr>
+                        <tr><td>Q9</td><td>memandang kurang serius pendapat seseorang yang pernah dirawat</td><td>Merendahkan pendapat</td><td>Afektif</td></tr>
+                    </table>
+                    <p class="text-xs text-slate-500">*Pengelompokan dimensi mengikut tetapan dashboard ini (boleh diubah dalam pemalar <code>DIMS</code> di dalam kod).</p>
+                </section>
+
+                <section id="info-skor">
+                    <h3>3. Pengiraan &amp; Tafsiran Skor</h3>
+                    <h4>Skala jawapan</h4>
+                    <table><tr><th>Jawapan</th><th>Skor dashboard</th><th>Skor asal STIG-9</th></tr>
+                        <tr><td>Tidak setuju</td><td>1</td><td>0</td></tr><tr><td>Agak tidak setuju</td><td>2</td><td>1</td></tr>
+                        <tr><td>Agak setuju</td><td>3</td><td>2</td></tr><tr><td>Setuju</td><td>4</td><td>3</td></tr></table>
+                    <h4>Cara pengiraan dalam dashboard</h4>
+                    <ul>
+                        <li><b>Skor item</b> = nilai 1–4 bagi setiap soalan.</li>
+                        <li><b>Skor Total STIG-9</b> = purata 9 item (julat 1.00–4.00). Hanya responden yang menjawab <b>kesemua 9 item</b> dimasukkan.</li>
+                        <li><b>Skor dimensi</b> = purata item dalam dimensi berkenaan (Afektif: Q1, Q9; Kognitif: Q5, Q6, Q8; Tingkah Laku: Q2, Q3, Q4, Q7).</li>
+                        <li><b>Penukaran ke skor asal (0–27)</b> untuk perbandingan dengan literatur: <code>Skor jumlah = (Skor Total − 1) × 9</code>. Contoh: purata 2.00 ≈ skor jumlah 9.</li>
+                    </ul>
+                    <h4>Tahap tafsiran</h4>
+                    <table><tr><th>Skor purata</th><th>Tahap persepsi stigma</th></tr>
+                        <tr><td>1.00 – 1.75</td><td><span class="lvl lvl-1">Sangat rendah</span></td></tr>
+                        <tr><td>1.76 – 2.50</td><td><span class="lvl lvl-2">Rendah / sederhana</span></td></tr>
+                        <tr><td>2.51 – 3.25</td><td><span class="lvl lvl-3">Tinggi</span></td></tr>
+                        <tr><td>3.26 – 4.00</td><td><span class="lvl lvl-4">Sangat tinggi</span></td></tr></table>
+                    <div class="callout warn">Tahap ini ialah sela sama lebar yang ditetapkan untuk tujuan pelaporan kajian ini. <b>STIG-9 asal tidak mempunyai titik potong (cut-off) rasmi</b>; pembangun hanya melaporkan skor rujukan populasi. Laporkan juga skor min/median sebenar, bukan tahap sahaja.</div>
+                    <h4>Statistik deskriptif yang dipaparkan</h4>
+                    <ul>
+                        <li><b>Mean (SD)</b> — purata dan sisihan piawai; sesuai jika taburan hampir normal.</li>
+                        <li><b>Median (IQR)</b> — nilai tengah dan julat antara kuartil; lebih tepat bagi data Likert yang condong.</li>
+                        <li><b>Skewness</b> — |skew| ≤ 1 (hijau) dianggap hampir normal; &gt; 1 (merah) condong. Data STIG-9 lazimnya condong ke kanan (ramai menjawab "Tidak setuju").</li>
+                    </ul>
+                </section>
+
+                <section id="info-program">
+                    <h3>4. Penilaian Program (Lampiran B)</h3>
+                    <h4>Bahagian 2: Amalan Penjagaan Kendiri</h4>
+                    <p>"Adakah anda pernah mengamalkan aktiviti penjagaan kendiri untuk mengurangkan stres?" (cth. bersyukur, bernafas dengan teratur, beriadah, berkongsi masalah).</p>
+                    <ul><li><b>Ya</b> — sudah mengamalkan</li><li><b>Niat</b> — belum, tetapi berniat mengamalkan selepas program (petunjuk awal kesan program)</li><li><b>Tidak</b> — tidak pernah mengamalkan</li></ul>
+                    <p>Berkait dengan Objektif 2.3 kempen: menggalakkan amalan penjagaan kendiri dan kemahiran daya tindak.</p>
+                    <h4>Bahagian 3: Pendedahan Logo Hentikan Stigma</h4>
+                    <p>Peratus responden yang pernah melihat logo "Hentikan Stigma, Kesihatan Mental Milik Semua" — petunjuk <b>jangkauan (reach)</b> hebahan kempen (Objektif 2.1).</p>
+                    <h4>Bahagian 4: Persepsi &amp; Kepuasan Program</h4>
+                    <p>Skala 1–5: <b>1</b> Sangat Lemah · <b>2</b> Lemah · <b>3</b> Memuaskan · <b>4</b> Baik · <b>5</b> Sangat Cemerlang.</p>
+                    <table><tr><th>Aspek</th><th>Soalan</th></tr>
+                        <tr><td>Menarik Perhatian</td><td>Adakah pameran, aktiviti &amp; penyampaian maklumat menarik minat anda?</td></tr>
+                        <tr><td>Mudah Difahami</td><td>Adakah mesej disampaikan dengan mudah difahami?</td></tr>
+                        <tr><td>Relevan</td><td>Adakah topik dan pengisian aktiviti relevan dengan keperluan diri dan masyarakat?</td></tr>
+                        <tr><td>Mendorong Perubahan</td><td>Adakah kempen ini mendorong anda mengamalkan penjagaan kesihatan mental yang baik?</td></tr></table>
+                    <ul>
+                        <li><b>Min skor penilaian</b> = purata 4 aspek bagi setiap responden, kemudian dipuratakan.</li>
+                        <li><b>% Baik / Sangat Cemerlang</b> = peratus jawapan bernilai 4 atau 5 (<i>top-2-box</i>) — penunjuk kepuasan yang mudah difahami pengurusan.</li>
+                    </ul>
+                </section>
+
+                <section id="info-dash">
+                    <h3>5. Panduan Komponen Dashboard</h3>
+                    <table>
+                        <tr><th>Komponen</th><th>Apa yang dipaparkan / cara membaca</th></tr>
+                        <tr><td>Penapis</td><td>Semua carta &amp; jadual dikira semula mengikut penapis demografi, daerah, tarikh program dan pendedahan logo/amalan. Tarikh menggunakan <i>tarikh program</i>, bukan tarikh isian borang.</td></tr>
+                        <tr><td>Jumlah Responden (N)</td><td>Bilangan rekod selepas penapis.</td></tr>
+                        <tr><td>Statistik Umur</td><td>Min (SD), median (IQR) dan julat umur. Umur &lt; 5 tahun dianggap ralat input dan dikecualikan.</td></tr>
+                        <tr><td>Kualiti Data</td><td>Bilangan rekod lengkap STIG-9 dan penilaian, rekod pendua, tiada tarikh, dan umur tidak sah.</td></tr>
+                        <tr><td>Carta demografi</td><td>Bilangan dan peratus mengikut kategori. Klik mana-mana carta untuk paparan besar.</td></tr>
+                        <tr><td>Jadual item STIG-9</td><td>Statistik setiap item dan tahapnya — kenal pasti <b>bentuk stigma paling ketara</b> untuk fokus mesej intervensi.</td></tr>
+                        <tr><td>Boxplot dimensi</td><td>Kotak = IQR (25–75%), garis tengah = median, misai = julat tanpa outlier, titik = outlier. Kotak lebih tinggi = persepsi stigma lebih tinggi.</td></tr>
+                        <tr><td>Tahap Stigma Responden</td><td>Peratus responden dalam setiap tahap berdasarkan skor total masing-masing.</td></tr>
+                        <tr><td>STIG-9 mengikut daerah</td><td>Min skor total setiap daerah (n dalam kurungan). Tafsir dengan berhati-hati jika n kecil.</td></tr>
+                        <tr><td>Taburan skor penilaian</td><td>Bar bertindan 100%: merah (1) hingga hijau (5) bagi setiap aspek.</td></tr>
+                        <tr><td>Amalan / Logo / Penilaian mengikut daerah</td><td>Lihat Bahagian 4.</td></tr>
+                        <tr><td>Jana Rumusan</td><td>Ringkasan automatik berdasarkan data yang ditapis — semak semula sebelum dimasukkan ke dalam laporan rasmi.</td></tr>
+                    </table>
+                </section>
+
+                <section id="info-inferensi">
+                    <h3>6. Analisa Inferensi</h3>
+                    <p>Membandingkan skor STIG-9 (total &amp; dimensi) dan skor penilaian program antara kumpulan. Ujian dipilih secara automatik:</p>
+                    <table><tr><th>Pilihan</th><th>Ujian</th><th>Bila digunakan</th><th>Nilai dipaparkan</th></tr>
+                        <tr><td rowspan="2">Satu kumpulan vs lain-lain</td><td>Welch t-test</td><td>Kedua-dua kumpulan |skewness| ≤ 1</td><td>Mean (SD)</td></tr>
+                        <tr><td>Mann-Whitney U</td><td>Salah satu kumpulan condong</td><td>Median [IQR]</td></tr>
+                        <tr><td>Bandingkan semua kumpulan</td><td>Kruskal-Wallis</td><td>Lebih daripada 2 kumpulan</td><td>Median [IQR]</td></tr></table>
+                    <ul>
+                        <li><b>p &lt; 0.05</b> (diserlahkan hijau) = perbezaan signifikan secara statistik.</li>
+                        <li>Dengan sampel besar, perbezaan yang sangat kecil boleh menjadi signifikan — nilai juga <b>magnitud perbezaan</b> (contoh beza min 0.1 pada skala 1–4 adalah kecil secara praktikal).</li>
+                        <li>Apabila banyak perbandingan dibuat, risiko keputusan positif palsu meningkat — pertimbangkan pembetulan Bonferroni.</li>
+                        <li>Analisa ini bersifat <b>perbandingan tanpa kawalan</b> (unadjusted); ia tidak menunjukkan hubungan sebab-akibat.</li>
+                    </ul>
+                </section>
+
+                <section id="info-liputan">
+                    <h3>7. Liputan &amp; Sasaran</h3>
+                    <ul>
+                        <li>Data sasaran dibaca daripada <b>Sheet2</b> Google Sheet (Sasaran Pengunjung, % Sasaran Responden, Bilangan Pengunjung Sebenar).</li>
+                        <li><b>Sasaran responden</b> = % sasaran × pengunjung sebenar (atau sasaran pengunjung jika data sebenar belum diisi).</li>
+                        <li><b>Pencapaian</b>: hijau ≥ 100%, jingga 50–99%, merah &lt; 50%.</li>
+                        <li>Panduan kebangsaan: minimum <b>30% daripada sasaran minimum pengunjung</b> perlu menjawab STIG-9 dan tinjauan kepuasan (sasaran minimum pengunjung Kedah = 700 orang bagi peringkat negeri).</li>
+                    </ul>
+                </section>
+
+                <section id="info-limitasi">
+                    <h3>8. Kualiti Data &amp; Limitasi</h3>
+                    <ul>
+                        <li><b>Rekod pendua</b>: rekod dengan jawapan identik sepenuhnya mungkin penghantaran berulang. Gunakan kotak "Kecualikan rekod pendua" untuk analisa sensitiviti.</li>
+                        <li><b>Persampelan</b>: responden ialah pengunjung program (sampel mudah/kemudahan), bukan sampel rawak populasi. Dapatan tidak semestinya mewakili seluruh penduduk daerah/negeri.</li>
+                        <li><b>Bias keinginan sosial</b>: borang diisi di lokasi program kesihatan mental — responden mungkin cenderung memberi jawapan yang "positif".</li>
+                        <li><b>Kanak-kanak &amp; remaja</b>: STIG-9 divalidasi pada orang dewasa; tafsir skor responden bawah 18 tahun dengan berhati-hati.</li>
+                        <li><b>Dimensi</b>: STIG-9 asal disahkan sebagai skala satu faktor; skor dimensi adalah analisa penerokaan — <b>Skor Total</b> ialah penunjuk utama.</li>
+                        <li><b>Pengesahan versi BM</b>: kesahan &amp; kebolehpercayaan terjemahan Bahasa Melayu perlu dirujuk/ditentukan secara berasingan (cth. Cronbach's alpha).</li>
+                    </ul>
+                </section>
+
+                <section id="info-rujukan" style="border:none">
+                    <h3>9. Rujukan</h3>
+                    <ul>
+                        <li>Gierk B, Löwe B, Murray AM, Kohlmann S. Assessment of perceived mental health-related stigma: The Stigma-9 Questionnaire (STIG-9). <i>Psychiatry Research</i>. 2018;270:822–830.</li>
+                        <li>Link BG. Understanding labeling effects in the area of mental disorders: an assessment of the effects of expectations of rejection. <i>American Sociological Review</i>. 1987;52(1):96–112.</li>
+                        <li>Kementerian Kesihatan Malaysia (NCEMH). <i>Panduan Pelaksanaan Kempen Hentikan Stigma, Kesihatan Mental Milik Semua Peringkat Negeri</i> — Lampiran A (STIG-9) &amp; Lampiran B (Borang Demografi &amp; Penilaian Keberkesanan Program).</li>
+                    </ul>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="bg-indigo-950 text-white p-6 shadow-2xl sticky top-0 z-50">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-black text-indigo-400 tracking-tighter uppercase">STIG-9 Dashboard Pro v11.1</h1>
+                <p class="text-slate-400 text-[10px] italic font-medium uppercase tracking-widest">Kajian Stigma Kesihatan Mental & Penilaian Program • JKN Kedah</p>
+            </div>
+            <div class="flex flex-col items-end gap-2">
+                <div class="flex gap-2 flex-wrap justify-end">
+                    <input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="handleFileUpload(event)">
+                    <button onclick="document.getElementById('csvFileInput').click()" class="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-xl text-[10px] font-bold uppercase shadow-lg border border-emerald-500">Upload CSV</button>
+                    <button onclick="init()" class="bg-indigo-600 hover:bg-indigo-500 px-5 py-2 rounded-xl text-[10px] font-bold uppercase shadow-lg border border-indigo-500">Kemaskini Auto</button>
+                    <button onclick="openInfo()" class="bg-amber-400 hover:bg-amber-300 text-indigo-950 px-5 py-2 rounded-xl text-[10px] font-black uppercase shadow-lg border border-amber-300">📘 Panduan STIG-9 &amp; Dashboard</button>
+                </div>
+                <div id="updateTime" class="text-[10px] text-slate-400 uppercase font-bold tracking-widest text-right">Memuatkan data...</div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 space-y-8">
+
+        <!-- PENAPIS -->
+        <section class="card-stat">
+            <div id="filterBox" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 items-end"></div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 items-end mt-3">
+                <div class="flex flex-col gap-1">
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider pl-1">Tarikh Program (Mula)</label>
+                    <input type="date" id="fStartDate" onchange="updateDashboard()" class="p-2 bg-slate-50 border rounded-xl text-xs font-bold outline-none w-full">
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider pl-1">Tarikh Program (Tamat)</label>
+                    <input type="date" id="fEndDate" onchange="updateDashboard()" class="p-2 bg-slate-50 border rounded-xl text-xs font-bold outline-none w-full">
+                </div>
+                <label class="col-span-2 flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-xl text-[11px] font-bold text-amber-900 cursor-pointer">
+                    <input type="checkbox" id="fDedup" onchange="updateDashboard()" class="w-4 h-4">
+                    Kecualikan rekod pendua (jawapan identik) <span id="dupInfo" class="font-black"></span>
+                </label>
+                <button onclick="resetFilters()" class="p-3 bg-slate-200 hover:bg-slate-300 rounded-xl text-xs font-black uppercase tracking-widest h-[42px] w-full">Reset</button>
+            </div>
+        </section>
+
+        <!-- KPI ASAS -->
+        <section class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="card-stat border-l-8 border-l-indigo-500 flex flex-col justify-center items-center text-center">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Jumlah Responden (N)</p>
+                <h3 id="nVal" class="text-6xl font-black text-indigo-900 mt-2">0</h3>
+            </div>
+            <div class="card-stat border-l-8 border-l-emerald-500 flex flex-col justify-center items-center text-center">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Statistik Umur</p>
+                <div id="ageStats" class="flex flex-col items-center"><span class="text-2xl font-black text-slate-800">–</span></div>
+            </div>
+            <div class="card-stat border-l-8 border-l-amber-500 flex flex-col justify-center">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 text-center">Kualiti Data</p>
+                <div id="qualityStats" class="text-[11px] font-bold text-slate-600 space-y-1"></div>
+            </div>
+            <div class="card-stat card-click" onclick="zoomChart('ageGroupChart','Taburan Kumpulan Umur')">
+                <div class="chart-container"><canvas id="ageGroupChart"></canvas></div>
+            </div>
+        </section>
+
+        <!-- DEMOGRAFI -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4" id="demoGrid"></section>
+        <section class="card-stat card-click" onclick="zoomChart('chartDaerah','Bilangan Responden Mengikut Daerah Program')">
+            <p class="text-[10px] font-black text-slate-400 uppercase mb-2 text-center tracking-widest">Responden Mengikut Daerah Program</p>
+            <div class="chart-tall"><canvas id="chartDaerah"></canvas></div>
+        </section>
+
+        <!-- ======================= A. STIGMA ======================= -->
+        <h2 class="sec-title text-xl text-indigo-950 border-l-8 border-indigo-600 pl-3">A. Persepsi Stigma Komuniti (STIG-9) <button onclick="openInfo('stig')" title="Penerangan" class="info-dot">i</button></h2>
+
+        <section class="card-stat overflow-hidden !p-0 shadow-sm">
+            <div class="p-6 bg-slate-50 border-b">
+                <h2 class="font-black text-slate-800 uppercase text-sm">Analisa Item STIG-9 (Deskriptif) <button onclick="openInfo('skor')" title="Penerangan" class="info-dot">i</button></h2>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Skala 1 (Tidak setuju) – 4 (Setuju). Skor purata tinggi = stigma lebih tinggi.
+                    <span class="lvl lvl-1 ml-1">1.00–1.75 Sangat rendah</span>
+                    <span class="lvl lvl-2">1.76–2.50 Rendah/sederhana</span>
+                    <span class="lvl lvl-3">2.51–3.25 Tinggi</span>
+                    <span class="lvl lvl-4">3.26–4.00 Sangat tinggi</span></p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50 text-[10px] font-black text-slate-500 uppercase border-b">
+                        <tr><th class="p-4">Item</th><th class="p-4">Pernyataan ("Saya rasa kebanyakan orang…")</th><th class="p-4 text-center">Mean (SD)</th><th class="p-4 text-center">Median (IQR)</th><th class="p-4 text-center">Skewness</th><th class="p-4 text-center">Tahap</th></tr>
+                    </thead>
+                    <tbody id="stigItemRows" class="text-xs divide-y"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="card-stat card-click lg:col-span-2" onclick="zoomChart('boxplotDimensions','Boxplot Dimensi Stigma')">
+                <p class="text-[10px] font-black text-slate-400 uppercase mb-4 text-center tracking-widest">Taburan Skor Dimensi (Box-Whisker)</p>
+                <div class="h-64"><canvas id="boxplotDimensions"></canvas></div>
+            </div>
+            <div class="card-stat card-click" onclick="zoomChart('chartStigLevel','Taburan Tahap Stigma Responden (Skor Total STIG-9)')">
+                <p class="text-[10px] font-black text-slate-400 uppercase mb-2 text-center tracking-widest">Tahap Stigma Responden</p>
+                <div class="chart-container"><canvas id="chartStigLevel"></canvas></div>
+            </div>
+        </section>
+
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="card-stat bg-indigo-50 border-indigo-100 flex flex-col">
+                <h4 class="text-[11px] font-black text-indigo-900 uppercase mb-4 text-center tracking-widest">Rumusan Statistik Dimensi</h4>
+                <div id="dimSummary" class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-grow"></div>
+            </div>
+            <div class="card-stat card-click" onclick="zoomChart('chartStigDaerah','Min Skor Total STIG-9 Mengikut Daerah')">
+                <p class="text-[10px] font-black text-slate-400 uppercase mb-2 text-center tracking-widest">Min Skor Total STIG-9 Mengikut Daerah</p>
+                <div class="chart-container"><canvas id="chartStigDaerah"></canvas></div>
+            </div>
+        </section>
+
+        <section class="card-stat !p-0 overflow-hidden shadow-md">
+            <div class="p-6 bg-slate-900 text-white flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h2 class="font-black uppercase text-sm tracking-tight">Analisa Inferensi (Perbandingan Kumpulan) <button onclick="openInfo('inferensi')" title="Penerangan" class="info-dot">i</button></h2>
+                    <p class="text-[10px] text-slate-400 mt-1">Ujian dipilih automatik: Welch t-test (taburan normal) atau Mann-Whitney U / Kruskal-Wallis (tidak normal).</p>
+                </div>
+                <div class="flex flex-wrap gap-2 justify-center">
+                    <select id="inferCat" onchange="populateSubGroups()" class="p-2 bg-white text-slate-900 rounded-lg text-xs font-bold outline-none min-w-[150px]"></select>
+                    <select id="inferSub" class="p-2 bg-white text-slate-900 rounded-lg text-xs font-bold outline-none min-w-[180px]"></select>
+                    <button onclick="runComparison()" class="bg-indigo-500 hover:bg-indigo-400 px-8 py-2 rounded-xl text-[10px] font-black uppercase text-white shadow-xl active:scale-95">Jana Analisa</button>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead id="inferHead" class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase border-b"></thead>
+                    <tbody id="inferRows" class="text-sm divide-y"></tbody>
+                </table>
+            </div>
+            <p id="inferNote" class="px-6 py-3 text-[10px] text-slate-400 italic border-t"></p>
+        </section>
+
+        <!-- ======================= B. PENILAIAN PROGRAM ======================= -->
+        <h2 class="sec-title text-xl text-emerald-900 border-l-8 border-emerald-600 pl-3">B. Penilaian Program <button onclick="openInfo('program')" title="Penerangan" class="info-dot">i</button></h2>
+
+        <section class="grid grid-cols-2 md:grid-cols-4 gap-4" id="progKpi"></section>
+
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="card-stat card-click" onclick="zoomChart('chartRatingStack','Taburan Skor Penilaian Bahan / Logo (1–5)')">
+                <p class="text-[10px] font-black text-slate-400 uppercase mb-2 text-center tracking-widest">Taburan Skor (1 Sangat Lemah · 2 Lemah · 3 Memuaskan · 4 Baik · 5 Sangat Cemerlang)</p>
+                <div class="chart-container"><canvas id="chartRatingStack"></canvas></div>
+            </div>
+            <div class="card-stat overflow-hidden !p-0">
+                <div class="p-4 bg-slate-50 border-b"><h3 class="font-black text-slate-800 uppercase text-xs">Ringkasan Skor Penilaian</h3></div>
+                <table class="w-full text-left">
+                    <thead class="text-[10px] font-black text-slate-500 uppercase border-b">
+                        <tr><th class="p-3">Aspek</th><th class="p-3 text-center">n</th><th class="p-3 text-center">Mean (SD)</th><th class="p-3 text-center">Median (IQR)</th><th class="p-3 text-center">% Baik / Sangat Cemerlang</th></tr>
+                    </thead>
+                    <tbody id="ratingRows" class="text-xs divide-y"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="card-stat card-click" onclick="zoomChart('chartAmalan','Amalan Penjagaan Kendiri untuk Mengurangkan Stres')">
+                <p class="text-[10px] font-black text-slate-400 uppercase mb-2 text-center tracking-widest">Amalan Penjagaan Kendiri</p>
+                <div class="chart-container"><canvas id="chartAmalan"></canvas></div>
+            </div>
+            <div class="card-stat card-click" onclick="zoomChart('chartLogo','Pendedahan kepada Logo Hentikan Stigma')">
+                <p class="text-[10px] font-black text-slate-400 uppercase mb-2 text-center tracking-widest">Pernah Melihat Logo Hentikan Stigma</p>
+                <div class="chart-container"><canvas id="chartLogo"></canvas></div>
+            </div>
+            <div class="card-stat card-click" onclick="zoomChart('chartRatingDaerah','Min Skor Penilaian Keseluruhan Mengikut Daerah')">
+                <p class="text-[10px] font-black text-slate-400 uppercase mb-2 text-center tracking-widest">Min Skor Penilaian Mengikut Daerah</p>
+                <div class="chart-container"><canvas id="chartRatingDaerah"></canvas></div>
+            </div>
+        </section>
+
+        <section class="card-stat overflow-hidden !p-0">
+            <div class="p-6 bg-slate-50 border-b">
+                <h2 class="font-black text-slate-800 uppercase text-sm">Liputan Responden vs Sasaran (Sheet2) <button onclick="openInfo('liputan')" title="Penerangan" class="info-dot">i</button></h2>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Sasaran responden = % sasaran × pengunjung sebenar (atau sasaran pengunjung jika data sebenar tiada). Bilangan responden ikut penapis semasa.</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="text-[10px] font-black text-slate-500 uppercase border-b">
+                        <tr><th class="p-3">Daerah</th><th class="p-3 text-center">Sasaran Pengunjung</th><th class="p-3 text-center">Pengunjung Sebenar</th><th class="p-3 text-center">Sasaran Responden</th><th class="p-3 text-center">Responden</th><th class="p-3 text-center">Pencapaian</th></tr>
+                    </thead>
+                    <tbody id="coverageRows" class="text-xs divide-y"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- RUMUSAN -->
+        <section class="bg-indigo-950 p-10 rounded-[3rem] shadow-2xl text-white border-4 border-indigo-900">
+            <div class="flex flex-col md:flex-row justify-between mb-8 gap-4">
+                <h2 class="text-2xl font-black uppercase tracking-tighter">💡 Interpretasi Keseluruhan</h2>
+                <button onclick="generateAIReport()" class="bg-indigo-500 hover:bg-white hover:text-indigo-950 px-10 py-4 rounded-2xl font-black text-xs uppercase shadow-xl active:scale-95">Jana Rumusan</button>
+            </div>
+            <div id="aiComment" class="text-sm leading-[1.8] bg-indigo-900/30 p-8 rounded-[2rem] border border-indigo-800 min-h-[150px] whitespace-pre-line text-indigo-50 shadow-inner font-medium">Sila klik 'JANA RUMUSAN' untuk mendapatkan ulasan statistik berdasarkan data yang ditapis.</div>
+        </section>
+    </main>
+
+<script>
+/* =====================================================================
+   KONFIGURASI
+   ===================================================================== */
+const SHEET_ID = '1xQdgrVAVwxGbqJEe3alTPEwkIITasTTwNCLKVK6Juvg';
+const DATA_SOURCES = [
+    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&headers=1&gid=0`,
+    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`
+];
+const TARGET_SOURCES = [
+    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&headers=1&sheet=Sheet2`
+];
+
+const ITEMS = [
+    'Berasa tidak senang apabila seseorang yang pernah dirawat kerana masalah kesihatan mental berpindah ke kawasan kejiranan',
+    'Tidak akan menjalin hubungan rapat dengan seseorang yang pernah dirawat',
+    'Tidak akan melayan permohonan pekerjaan daripada seseorang yang pernah dirawat',
+    'Teragak-agak untuk meninggalkan anak dengan seseorang yang telah dirawat',
+    'Menganggap masalah kesihatan mental sebagai tanda kelemahan diri',
+    'Bersangka buruk terhadap seseorang yang mempunyai masalah kesihatan mental',
+    'Teragak-agak untuk berurusan perniagaan dengan seseorang yang pernah dirawat',
+    'Menganggap individu yang pernah dirawat sebagai seseorang yang berbahaya',
+    'Memandang kurang serius pendapat seseorang yang pernah dirawat'
+];
+// Pemetaan dimensi (kekal seperti versi asal – ubah di sini jika perlu)
+const DIMS = { Afektif: [1, 9], Kognitif: [5, 6, 8], TingkahLaku: [2, 3, 4, 7] };
+const DIM_KEYS = ['Afektif', 'Kognitif', 'TingkahLaku', 'TotalStig9'];
+const DIM_LABELS = { Afektif: 'Afektif', Kognitif: 'Kognitif', TingkahLaku: 'Tingkah Laku', TotalStig9: 'STIG-9 Total', RatingMean: 'Skor Penilaian Program (1–5)' };
+const DIM_THEME = { Afektif: 'prasangka emosi', Kognitif: 'kepercayaan / stereotaip', TingkahLaku: 'tingkah laku diskriminasi' };
+
+const RATINGS = [
+    { key: 'rate_menarik', label: 'Menarik Perhatian' },
+    { key: 'rate_faham',   label: 'Mudah Difahami' },
+    { key: 'rate_relevan', label: 'Relevan' },
+    { key: 'rate_dorong',  label: 'Mendorong Perubahan' }
+];
+
+const AGE_ORDER = ['0-15 Tahun', '16-30 Tahun', '31-59 Tahun', '60 Tahun ke atas', 'Tidak Nyata'];
+const STIG_LEVELS = ['Sangat Rendah', 'Rendah/Sederhana', 'Tinggi', 'Sangat Tinggi'];
+
+const FILTERS = [
+    { id: 'fJantina',    col: 'Jantina',    label: 'Jantina' },
+    { id: 'fUmur',       col: 'UmurGroup',  label: 'Kump. Umur' },
+    { id: 'fBangsa',     col: 'Bangsa',     label: 'Bangsa' },
+    { id: 'fAgama',      col: 'Agama',      label: 'Agama' },
+    { id: 'fLokasi',     col: 'Lokasi',     label: 'Lokasi' },
+    { id: 'fPendidikan', col: 'Pendidikan', label: 'Pendidikan' },
+    { id: 'fPekerjaan',  col: 'Pekerjaan',  label: 'Pekerjaan' },
+    { id: 'fDaerah',     col: 'Daerah',     label: 'Daerah Program' },
+    { id: 'fLogo',       col: 'LihatLogo',  label: 'Lihat Logo' },
+    { id: 'fAmalan',     col: 'Amalan',     label: 'Amalan Kendiri' }
+];
+const INFER_CATS = [
+    ['Jantina', 'Jantina'], ['UmurGroup', 'Kumpulan Umur'], ['Bangsa', 'Bangsa'], ['Agama', 'Agama'],
+    ['Lokasi', 'Lokasi'], ['Pendidikan', 'Tahap Pendidikan'], ['Pekerjaan', 'Status Pekerjaan'],
+    ['Daerah', 'Daerah Program'], ['LihatLogo', 'Pernah Lihat Logo'], ['Amalan', 'Amalan Kendiri']
+];
+const DEMO_CHARTS = [
+    { id: 'chartJantina', col: 'Jantina', label: 'Jantina' },
+    { id: 'chartBangsa', col: 'Bangsa', label: 'Bangsa' },
+    { id: 'chartAgama', col: 'Agama', label: 'Agama' },
+    { id: 'chartLokasi', col: 'Lokasi', label: 'Lokasi' },
+    { id: 'chartPendidikan', col: 'Pendidikan', label: 'Pendidikan' },
+    { id: 'chartPekerjaan', col: 'Pekerjaan', label: 'Pekerjaan' }
+];
+const PALETTE = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#EC4899', '#84CC16', '#F97316', '#64748B', '#14B8A6', '#A855F7'];
+const SCORE_COLORS = ['#dc2626', '#f97316', '#facc15', '#4ade80', '#059669'];
+
+let raw = [], filteredData = [], targets = [], charts = {}, builders = {}, zoomRef = null;
+
+/* =====================================================================
+   UTILITI
+   ===================================================================== */
+const isNum = Number.isFinite;
+const valid = a => a.filter(isNum);
+const fmt = (x, d = 2) => isNum(x) ? x.toFixed(d) : '–';
+const pct = (a, b) => b ? (a * 100 / b) : NaN;
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const titleCase = s => s ? s.toLowerCase().replace(/(^|\s)\S/g, c => c.toUpperCase()) : s;
+
+function clean(v) { return (v === undefined || v === null) ? '' : String(v).trim().replace(/\s+/g, ' '); }
+function get(r, ...keys) { for (const k of keys) { const v = clean(r[k]); if (v !== '') return v; } return ''; }
+
+function parseDate(str) {
+    const s = clean(str).replace(',', ' ');
+    if (!s) return null;
+    let m = s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})/);
+    if (m) { let y = +m[3]; if (y < 100) y += 2000; const d = new Date(y, +m[2] - 1, +m[1]); return isNaN(d) ? null : d; }
+    m = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+    if (m) { const d = new Date(+m[1], +m[2] - 1, +m[3]); return isNaN(d) ? null : d; }
+    m = s.match(/^Date\((\d{4}),(\d{1,2}),(\d{1,2})/);           // format gviz
+    if (m) return new Date(+m[1], +m[2], +m[3]);
+    return null;
+}
+const ymd = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const dmy = d => `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+
+function ageGroup(a) {
+    if (!isNum(a)) return 'Tidak Nyata';
+    return a <= 15 ? '0-15 Tahun' : a <= 30 ? '16-30 Tahun' : a <= 59 ? '31-59 Tahun' : '60 Tahun ke atas';
+}
+function normAmalan(v) {
+    if (/^ya/i.test(v)) return 'Ya';
+    if (/niat/i.test(v)) return 'Niat';
+    if (/^tidak/i.test(v)) return 'Tidak';
+    return 'Tidak Nyata';
+}
+function normYesNo(v) { return /^ya/i.test(v) ? 'Ya' : /^tidak/i.test(v) ? 'Tidak' : 'Tidak Nyata'; }
+function stigLevel(m) {
+    if (!isNum(m)) return null;
+    return m <= 1.75 ? 0 : m <= 2.50 ? 1 : m <= 3.25 ? 2 : 3;
+}
+function lvlBadge(m) { const l = stigLevel(m); return l === null ? '–' : `<span class="lvl lvl-${l + 1}">${STIG_LEVELS[l]}</span>`; }
+
+/* =====================================================================
+   STATISTIK
+   ===================================================================== */
+function desc(arr) {
+    const a = valid(arr);
+    if (!a.length) return null;
+    const q = jStat.quartiles(a);
+    let sk = a.length > 2 ? jStat.skewness(a) : 0;
+    if (!isNum(sk)) sk = 0;
+    return { n: a.length, mean: jStat.mean(a), sd: a.length > 1 ? jStat.stdev(a, true) : 0, median: jStat.median(a), iqr: q[2] - q[0], q1: q[0], q3: q[2], skew: sk };
+}
+function rankAll(groups) {               // pangkat purata untuk nilai seri
+    const all = [];
+    groups.forEach((g, gi) => g.forEach(v => all.push({ v, gi })));
+    all.sort((a, b) => a.v - b.v);
+    const ranks = new Array(all.length); let tieSum = 0;
+    for (let i = 0; i < all.length;) {
+        let j = i; while (j + 1 < all.length && all[j + 1].v === all[i].v) j++;
+        const r = (i + j) / 2 + 1, t = j - i + 1;
+        if (t > 1) tieSum += t * t * t - t;
+        for (let k = i; k <= j; k++) ranks[k] = r;
+        i = j + 1;
+    }
+    const rSum = groups.map(() => 0);
+    all.forEach((o, i) => rSum[o.gi] += ranks[i]);
+    return { rSum, tieSum, N: all.length };
+}
+function mannWhitney(x, y) {
+    const n1 = x.length, n2 = y.length;
+    const { rSum, tieSum, N } = rankAll([x, y]);
+    const U1 = rSum[0] - n1 * (n1 + 1) / 2;
+    const mu = n1 * n2 / 2;
+    const sigma = Math.sqrt(n1 * n2 / 12 * ((N + 1) - tieSum / (N * (N - 1))));
+    if (!sigma) return { stat: U1, p: 1, label: 'Mann-Whitney U' };
+    const z = (Math.abs(U1 - mu) - 0.5) / sigma;
+    return { stat: U1, z, p: Math.min(1, 2 * (1 - jStat.normal.cdf(Math.max(z, 0), 0, 1))), label: 'Mann-Whitney U' };
+}
+function welchT(x, y) {
+    const n1 = x.length, n2 = y.length, v1 = jStat.variance(x, true), v2 = jStat.variance(y, true);
+    const se2 = v1 / n1 + v2 / n2;
+    if (!se2) return { stat: 0, p: 1, label: 'Welch t-test' };
+    const t = (jStat.mean(x) - jStat.mean(y)) / Math.sqrt(se2);
+    const df = se2 * se2 / ((v1 / n1) ** 2 / (n1 - 1) + (v2 / n2) ** 2 / (n2 - 1));
+    return { stat: t, df, p: 2 * (1 - jStat.studentt.cdf(Math.abs(t), df)), label: 'Welch t-test' };
+}
+function kruskal(groups) {
+    const { rSum, tieSum, N } = rankAll(groups);
+    let H = 12 / (N * (N + 1)) * groups.reduce((s, g, i) => s + rSum[i] ** 2 / g.length, 0) - 3 * (N + 1);
+    const corr = 1 - tieSum / (N ** 3 - N);
+    if (corr > 0) H /= corr;
+    const df = groups.length - 1;
+    return { stat: H, df, p: 1 - jStat.chisquare.cdf(H, df), label: 'Kruskal-Wallis' };
+}
+
+/* =====================================================================
+   MUAT & PROSES DATA
+   ===================================================================== */
+function setStatus(msg, err = false) {
+    const el = document.getElementById('updateTime');
+    el.innerText = msg; el.style.color = err ? '#fca5a5' : '';
+}
+async function fetchText(urls) {
+    let lastErr;
+    for (const u of urls) {
+        try {
+            const r = await fetch(u, { cache: 'no-store' });
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const t = await r.text();
+            if (/^\s*</.test(t)) throw new Error('Respons HTML (sheet mungkin tidak dikongsi secara awam)');
+            return t;
+        } catch (e) { lastErr = e; console.warn('Gagal:', u, e); }
+    }
+    throw lastErr;
+}
+async function init() {
+    setStatus('Sedang muat turun data (Google Sheet)...');
+    try {
+        processCSV(await fetchText(DATA_SOURCES), 'Google Sheet');
+    } catch (e) {
+        setStatus('Gagal muat data: ' + e.message, true);
+        alert('Data tidak dapat dimuat dari Google Sheet.\n\nPastikan Google Sheet dikongsi sebagai "Sesiapa yang mempunyai pautan – Pemapar" (Anyone with the link – Viewer), atau gunakan butang Upload CSV.');
+    }
+    try { targets = parseTargets(await fetchText(TARGET_SOURCES)); }
+    catch (e) { targets = []; console.warn('Sheet2 (sasaran) tidak dapat dimuat', e); }
+    renderCoverage();
+}
+function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    setStatus('Membaca fail...');
+    const reader = new FileReader();
+    reader.onload = e => processCSV(e.target.result, 'CSV manual: ' + file.name);
+    reader.readAsText(file);
+    event.target.value = '';
+}
+
+function mapRow(r) {
+    const consent = get(r, 'consent', 'adakah anda bersetuju untuk meneruskan soal selidik ini?');
+    if (/^(no|tidak)$/i.test(consent)) return null;
+
+    const q = [];
+    for (let i = 1; i <= 9; i++) { const v = parseInt(get(r, 'q' + i), 10); q.push(v >= 1 && v <= 4 ? v : NaN); }
+    const jantina = get(r, 'jantina');
+    if (!jantina && !q.some(isNum)) return null;               // baris kosong
+
+    const ageN = parseFloat(get(r, 'umur_sebenar', 'umur'));
+    const age = (ageN >= 5 && ageN <= 110) ? ageN : NaN;          // umur < 5 dianggap ralat input
+
+    const o = {
+        Jantina: jantina || 'Tidak Nyata',
+        Umur: age,
+        UmurGroup: ageGroup(age),
+        Bangsa: titleCase(get(r, 'bangsa')) || 'Tidak Nyata',
+        Agama: titleCase(get(r, 'agama')) || 'Tidak Nyata',
+        Lokasi: titleCase(get(r, 'lokasi')) || 'Tidak Nyata',
+        Pendidikan: get(r, 'pendidikan', 'tahap pendidikan') || 'Tidak Nyata',
+        Pekerjaan: get(r, 'status_pekerjaan', 'status pekerjaan', 'pekerjaan') || 'Tidak Nyata',
+        Daerah: titleCase(get(r, 'daerah_program', 'daerah program', 'daerah')) || 'Tidak Nyata',
+        Amalan: normAmalan(get(r, 'amalan_kendiri')),
+        LihatLogo: normYesNo(get(r, 'lihat_logo')),
+        q
+    };
+    o.stigValid = q.every(isNum);
+    for (const [d, items] of Object.entries(DIMS)) {
+        const v = items.map(i => q[i - 1]);
+        o[d] = v.every(isNum) ? v.reduce((a, b) => a + b, 0) / v.length : NaN;
+    }
+    o.TotalStig9 = o.stigValid ? q.reduce((a, b) => a + b, 0) / 9 : NaN;
+    o.StigLevel = stigLevel(o.TotalStig9);
+
+    o.rates = RATINGS.map(R => { const v = parseInt(get(r, R.key), 10); return v >= 1 && v <= 5 ? v : NaN; });
+    const vr = valid(o.rates);
+    o.RatingMean = vr.length === RATINGS.length ? vr.reduce((a, b) => a + b, 0) / vr.length : NaN;
+
+    o.Date = parseDate(get(r, 'tarikh_program', 'tarikh program')) || parseDate(get(r, 'timestamp', ']', 'tarikh'));
+    o.key = [o.Jantina, get(r, 'umur_sebenar'), o.Bangsa, o.Agama, o.Lokasi, o.Pendidikan, o.Pekerjaan, o.Daerah,
+             o.Date ? ymd(o.Date) : '', o.Amalan, o.LihatLogo, q.join(','), o.rates.join(',')].join('|');
+    return o;
+}
+function processCSV(text, source) {
+    try {
+        const p = Papa.parse(text, { header: true, skipEmptyLines: true, transformHeader: h => h.trim().toLowerCase() });
+        raw = p.data.map(mapRow).filter(Boolean);
+        const seen = new Set();
+        raw.forEach(d => { d.isDup = seen.has(d.key); seen.add(d.key); });
+        if (!raw.length) { alert('Tiada data ditemui. Pastikan lajur (jantina, umur_sebenar, q1–q9, daerah_program, dll.) wujud.'); return; }
+        setupFilters(); populateInferCats(); updateDashboard();
+        setStatus(`Sumber: ${source} • ${raw.length} rekod • dikemaskini ${new Date().toLocaleTimeString('ms-MY')}`);
+    } catch (err) {
+        console.error(err); setStatus('Ralat memproses data: ' + err.message, true);
+    }
+}
+function parseTargets(text) {
+    const p = Papa.parse(text, { header: true, skipEmptyLines: true, transformHeader: h => h.trim().toLowerCase() });
+    const num = v => { const n = parseFloat(clean(v).replace(/[^\d.]/g, '')); return isNum(n) ? n : NaN; };
+    return p.data.map(r => {
+        const daerah = titleCase(get(r, 'daerah'));
+        const tgt = num(r['sasaran pengunjung']);
+        if (!daerah || !isNum(tgt) || tgt < 10 || /setuju/i.test(daerah)) return null;   // abaikan baris kunci skala Likert
+        let pr = clean(r['sasaran responden']); let pv = num(pr);
+        if (isNum(pv)) pv = (pr.includes('%') || pv > 1) ? pv / 100 : pv;
+        return { daerah, target: tgt, pct: isNum(pv) ? pv : 0.3, actual: num(r['bilangan pengunjung sebenar']) };
+    }).filter(Boolean);
+}
+
+/* =====================================================================
+   PENAPIS
+   ===================================================================== */
+function uniqueVals(col, data = raw) {
+    const vals = [...new Set(data.map(d => d[col]).filter(Boolean))];
+    if (col === 'UmurGroup') return AGE_ORDER.filter(v => vals.includes(v));
+    return vals.sort((a, b) => (a === 'Tidak Nyata') - (b === 'Tidak Nyata') || a.localeCompare(b));
+}
+function setupFilters() {
+    const box = document.getElementById('filterBox');
+    if (!box.children.length) {
+        box.innerHTML = FILTERS.map(f => `<div class="flex flex-col gap-1"><label class="text-[9px] font-black text-slate-400 uppercase tracking-wider pl-1">${f.label}</label>
+            <select id="${f.id}" onchange="updateDashboard()" class="p-2 bg-slate-50 border rounded-xl text-xs font-bold outline-none w-full"></select></div>`).join('');
+    }
+    FILTERS.forEach(f => {
+        const sel = document.getElementById(f.id), prev = sel.value;
+        const vals = uniqueVals(f.col);
+        sel.innerHTML = `<option value="All">Semua</option>` + vals.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('');
+        if (vals.includes(prev)) sel.value = prev;
+    });
+    const dates = raw.map(d => d.Date).filter(Boolean).map(d => d.getTime());
+    if (dates.length) {
+        const mn = ymd(new Date(Math.min(...dates))), mx = ymd(new Date(Math.max(...dates)));
+        ['fStartDate', 'fEndDate'].forEach(id => { const el = document.getElementById(id); el.min = mn; el.max = mx; });
+    }
+    const dups = raw.filter(d => d.isDup).length;
+    document.getElementById('dupInfo').innerText = `(${dups} dikesan)`;
+}
+function resetFilters() {
+    FILTERS.forEach(f => document.getElementById(f.id).value = 'All');
+    document.getElementById('fStartDate').value = '';
+    document.getElementById('fEndDate').value = '';
+    document.getElementById('fDedup').checked = false;
+    updateDashboard();
+}
+function inputDate(id) { const v = document.getElementById(id).value; if (!v) return null; const p = v.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+
+function updateDashboard() {
+    const start = inputDate('fStartDate'), end = inputDate('fEndDate');
+    const dedup = document.getElementById('fDedup').checked;
+    const sel = FILTERS.map(f => [f.col, document.getElementById(f.id).value]);
+    filteredData = raw.filter(d => {
+        if (dedup && d.isDup) return false;
+        for (const [c, v] of sel) if (v !== 'All' && d[c] !== v) return false;
+        if (start && (!d.Date || d.Date < start)) return false;
+        if (end && (!d.Date || d.Date > end)) return false;
+        return true;
+    });
+    renderKPIs(); renderDemographics(); renderStigma(); renderProgram(); renderCoverage();
+    document.getElementById('inferRows').innerHTML = '';
+    document.getElementById('inferNote').innerText = 'Pilih kategori dan kumpulan, kemudian klik "Jana Analisa".';
+}
+
+/* =====================================================================
+   CARTA (pembina boleh diguna semula untuk zoom)
+   ===================================================================== */
+function draw(id, builder) {
+    if (charts[id]) charts[id].destroy();
+    const cv = document.getElementById(id);
+    if (!cv) return;
+    builders[id] = builder;
+    charts[id] = new Chart(cv.getContext('2d'), builder(false));
+}
+function destroyAll() { Object.keys(charts).forEach(k => { charts[k].destroy(); delete charts[k]; }); }
+function countBy(data, col, order) {
+    const c = {};
+    data.forEach(d => { const k = d[col] || 'Tidak Nyata'; c[k] = (c[k] || 0) + 1; });
+    const labels = order ? order.filter(k => c[k]) : Object.keys(c).sort((a, b) => c[b] - c[a]);
+    return { labels, values: labels.map(k => c[k]) };
+}
+function countPctFormatter(v, ctx) {
+    const s = ctx.chart.data.datasets[ctx.datasetIndex].data.reduce((a, b) => a + b, 0);
+    return s ? `${v}\n(${(v * 100 / s).toFixed(1)}%)` : '';
+}
+function doughnutBuilder(labels, values, colors = PALETTE) {
+    return big => ({
+        type: 'doughnut',
+        data: { labels, datasets: [{ data: values, backgroundColor: colors }] },
+        options: {
+            responsive: true, maintainAspectRatio: false, layout: { padding: big ? 30 : 8 },
+            plugins: {
+                legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: big ? 13 : 10, weight: big ? 'bold' : 'normal' } } },
+                datalabels: {
+                    color: '#fff', textAlign: 'center', font: { weight: 'bold', size: big ? 14 : 10 },
+                    display: c => { const s = c.dataset.data.reduce((a, b) => a + b, 0); return s && c.dataset.data[c.dataIndex] / s >= 0.05; },
+                    formatter: countPctFormatter
+                }
+            }
+        }
+    });
+}
+function barBuilder(labels, values, opt = {}) {
+    const { horizontal = false, title = '', color = '#4F46E5', min, max, fmtVal } = opt;
+    const ix = horizontal ? 'y' : 'x', vx = horizontal ? 'x' : 'y';
+    return big => ({
+        type: 'bar',
+        data: { labels, datasets: [{ data: values, backgroundColor: Array.isArray(color) ? color : color, borderRadius: 6 }] },
+        options: {
+            indexAxis: ix, responsive: true, maintainAspectRatio: false,
+            layout: { padding: { top: horizontal ? 5 : 30, right: horizontal ? 60 : 10 } },
+            plugins: {
+                legend: { display: false },
+                datalabels: {
+                    color: '#334155', anchor: 'end', align: 'end', textAlign: 'center', font: { weight: 'bold', size: big ? 13 : 10 },
+                    formatter: fmtVal || countPctFormatter
+                }
+            },
+            scales: {
+                [vx]: { beginAtZero: min === undefined, min, max, suggestedMax: max === undefined ? Math.max(...values, 0) * 1.25 : undefined, ticks: { font: { size: big ? 12 : 10 } } },
+                [ix]: { title: { display: !!title, text: title, font: { size: 10, weight: 'bold' } }, ticks: { font: { size: big ? 12 : 10 } } }
+            }
+        }
+    });
+}
+function zoomChart(id, title) {
+    const b = builders[id];
+    if (!b || !charts[id]) return;
+    document.getElementById('chartModal').style.display = 'block';
+    document.getElementById('modalTitle').innerText = title;
+    if (zoomRef) zoomRef.destroy();
+    requestAnimationFrame(() => { zoomRef = new Chart(document.getElementById('zoomCanvas').getContext('2d'), b(true)); });
+}
+function closeModal() { document.getElementById('chartModal').style.display = 'none'; if (zoomRef) { zoomRef.destroy(); zoomRef = null; } }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeInfo(); } });
+function openInfo(sec) {
+    document.getElementById('infoModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    const body = document.getElementById('infoBody');
+    const t = sec ? document.getElementById('info-' + sec) : null;
+    body.scrollTop = t ? t.offsetTop - body.offsetTop - 8 : 0;
+}
+function closeInfo() { document.getElementById('infoModal').style.display = 'none'; document.body.style.overflow = ''; }
+function syncInfoNav() {
+    const body = document.getElementById('infoBody');
+    let cur = null;
+    body.querySelectorAll('section[id^=info-]').forEach(s => { if (s.offsetTop - body.offsetTop - 40 <= body.scrollTop) cur = s.id; });
+    document.querySelectorAll('.info-nav a').forEach(a => a.classList.toggle('on', a.dataset.t === cur));
+}
+
+/* =====================================================================
+   RENDER: KPI & DEMOGRAFI
+   ===================================================================== */
+function renderKPIs() {
+    const n = filteredData.length;
+    document.getElementById('nVal').innerText = n;
+    const ageD = desc(filteredData.map(d => d.Umur));
+    document.getElementById('ageStats').innerHTML = ageD ? `
+        <span class="text-2xl font-black text-slate-800 mt-1">Min: ${fmt(ageD.mean, 1)} <span class="text-sm">(SD ${fmt(ageD.sd, 1)})</span></span>
+        <span class="text-[13px] font-bold text-emerald-600 mt-1">Median: ${fmt(ageD.median, 1)} <span class="text-[11px]">(IQR ${fmt(ageD.iqr, 1)})</span></span>
+        <span class="text-[10px] font-bold text-slate-500 mt-2 uppercase tracking-widest bg-slate-100 px-3 py-1 rounded-full border">Julat: ${Math.min(...valid(filteredData.map(d => d.Umur)))} – ${Math.max(...valid(filteredData.map(d => d.Umur)))} tahun</span>`
+        : `<span class="text-xs font-bold text-red-500">Tiada data</span>`;
+    const stigOk = filteredData.filter(d => d.stigValid).length;
+    const rateOk = filteredData.filter(d => isNum(d.RatingMean)).length;
+    const noDate = filteredData.filter(d => !d.Date).length;
+    const dups = filteredData.filter(d => d.isDup).length;
+    const noAge = filteredData.filter(d => !isNum(d.Umur)).length;
+    document.getElementById('qualityStats').innerHTML = `
+        <div class="flex justify-between"><span>Lengkap STIG-9</span><span>${stigOk} / ${n}</span></div>
+        <div class="flex justify-between"><span>Lengkap penilaian</span><span>${rateOk} / ${n}</span></div>
+        <div class="flex justify-between"><span>Rekod pendua</span><span class="${dups ? 'text-amber-600' : ''}">${dups}</span></div>
+        <div class="flex justify-between"><span>Tiada tarikh program</span><span>${noDate}</span></div>
+        <div class="flex justify-between"><span>Umur tidak sah / kosong</span><span>${noAge}</span></div>`;
+}
+function renderDemographics() {
+    const grid = document.getElementById('demoGrid');
+    if (!grid.children.length) {
+        grid.innerHTML = DEMO_CHARTS.map(c => `<div class="card-stat card-click" onclick="zoomChart('${c.id}','Taburan ${c.label}')">
+            <p class="text-[9px] font-black text-slate-400 uppercase mb-2 text-center">${c.label}</p><div class="chart-container"><canvas id="${c.id}"></canvas></div></div>`).join('');
+    }
+    if (!filteredData.length) { destroyAll(); return; }
+    const ag = countBy(filteredData, 'UmurGroup', AGE_ORDER);
+    draw('ageGroupChart', barBuilder(ag.labels, ag.values, { title: 'Kumpulan Umur' }));
+    DEMO_CHARTS.forEach(c => { const r = countBy(filteredData, c.col); draw(c.id, doughnutBuilder(r.labels, r.values)); });
+    const dr = countBy(filteredData, 'Daerah');
+    draw('chartDaerah', barBuilder(dr.labels, dr.values, { horizontal: true, color: '#6366F1' }));
+}
+
+/* =====================================================================
+   RENDER: STIGMA
+   ===================================================================== */
+function renderStigma() {
+    const sv = filteredData.filter(d => d.stigValid);
+    const tbody = document.getElementById('stigItemRows');
+    if (!sv.length) { tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-red-500 font-bold">Tiada data STIG-9 yang lengkap.</td></tr>`; document.getElementById('dimSummary').innerHTML = ''; return; }
+
+    tbody.innerHTML = ITEMS.map((txt, i) => {
+        const s = desc(sv.map(d => d.q[i]));
+        return `<tr><td class="p-4 font-black text-slate-700">Q${i + 1}</td><td class="p-4 text-slate-600">${txt}</td>
+            <td class="p-4 text-center font-bold">${fmt(s.mean)} (${fmt(s.sd)})</td>
+            <td class="p-4 text-center text-slate-500">${fmt(s.median)} (${fmt(s.iqr)})</td>
+            <td class="p-4 text-center font-black ${Math.abs(s.skew) > 1 ? 'text-red-500' : 'text-emerald-500'}">${fmt(s.skew)}</td>
+            <td class="p-4 text-center">${lvlBadge(s.mean)}</td></tr>`;
+    }).join('');
+
+    const labels = DIM_KEYS.map(k => DIM_LABELS[k]);
+    const data = DIM_KEYS.map(k => sv.map(d => d[k]));
+    draw('boxplotDimensions', big => ({
+        type: 'boxplot',
+        data: { labels, datasets: [{ label: 'Skor Responden', data, backgroundColor: 'rgba(79,70,229,0.2)', borderColor: '#4F46E5', outlierRadius: 2 }] },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 1, max: 4 }, x: { ticks: { font: { size: big ? 13 : 10 } } } }, plugins: { legend: { display: false }, datalabels: { display: false } } }
+    }));
+
+    document.getElementById('dimSummary').innerHTML = DIM_KEYS.map(k => {
+        const s = desc(sv.map(d => d[k]));
+        const normal = Math.abs(s.skew) <= 1;
+        return `<div class="bg-white p-4 rounded-2xl border flex flex-col justify-center items-center shadow-sm text-center">
+            <p class="text-[9px] font-black text-slate-400 uppercase mb-1">${DIM_LABELS[k]}</p>
+            <h4 class="text-[12px] font-black text-indigo-900">${normal ? `Mean ${fmt(s.mean)} (SD ${fmt(s.sd)})` : `Median ${fmt(s.median)} (IQR ${fmt(s.iqr)})`}</h4>
+            <p class="text-[10px] text-slate-400 mt-1">${normal ? `Median ${fmt(s.median)} (IQR ${fmt(s.iqr)})` : `Mean ${fmt(s.mean)} (SD ${fmt(s.sd)})`} • skew ${fmt(s.skew)}</p>
+            <div class="mt-2">${lvlBadge(s.mean)}</div></div>`;
+    }).join('');
+
+    const lv = STIG_LEVELS.map((_, i) => sv.filter(d => d.StigLevel === i).length);
+    draw('chartStigLevel', doughnutBuilder(STIG_LEVELS, lv, ['#10b981', '#facc15', '#f97316', '#dc2626']));
+
+    const byD = {};
+    sv.forEach(d => (byD[d.Daerah] = byD[d.Daerah] || []).push(d.TotalStig9));
+    const dl = Object.keys(byD).sort((a, b) => jStat.mean(byD[b]) - jStat.mean(byD[a]));
+    const dm = dl.map(k => +jStat.mean(byD[k]).toFixed(2));
+    draw('chartStigDaerah', barBuilder(dl.map(k => `${k} (n=${byD[k].length})`), dm, {
+        horizontal: true, min: 1, max: 4, color: dm.map(m => ['#10b981', '#facc15', '#f97316', '#dc2626'][stigLevel(m)]), fmtVal: v => v.toFixed(2)
+    }));
+}
+
+/* =====================================================================
+   RENDER: PENILAIAN PROGRAM
+   ===================================================================== */
+function kpiCard(title, value, sub, color) {
+    return `<div class="card-stat border-l-8" style="border-left-color:${color}">
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">${title}</p>
+        <h3 class="text-3xl font-black mt-1" style="color:${color}">${value}</h3>
+        <p class="text-[10px] text-slate-500 font-bold mt-1">${sub}</p></div>`;
+}
+function renderProgram() {
+    const d = filteredData;
+    const logoN = d.filter(x => x.LihatLogo !== 'Tidak Nyata'), logoY = logoN.filter(x => x.LihatLogo === 'Ya').length;
+    const amN = d.filter(x => x.Amalan !== 'Tidak Nyata'), amY = amN.filter(x => x.Amalan === 'Ya').length, amNiat = amN.filter(x => x.Amalan === 'Niat').length;
+    const rm = desc(d.map(x => x.RatingMean));
+    const allR = d.flatMap(x => valid(x.rates));
+    const pos = allR.filter(v => v >= 4).length;
+    document.getElementById('progKpi').innerHTML =
+        kpiCard('Min Skor Penilaian', rm ? fmt(rm.mean) + ' / 5' : '–', rm ? `SD ${fmt(rm.sd)} • n=${rm.n}` : '', '#059669') +
+        kpiCard('% Skor Positif (4–5)', allR.length ? fmt(pct(pos, allR.length), 1) + '%' : '–', 'semua 4 aspek digabungkan', '#0891b2') +
+        kpiCard('Pernah Lihat Logo', logoN.length ? fmt(pct(logoY, logoN.length), 1) + '%' : '–', `${logoY} / ${logoN.length} responden`, '#7c3aed') +
+        kpiCard('Amalan Penjagaan Kendiri', amN.length ? fmt(pct(amY, amN.length), 1) + '%' : '–', `+ ${fmt(pct(amNiat, amN.length), 1)}% berniat`, '#d97706');
+
+    const tb = document.getElementById('ratingRows');
+    if (!d.length) { tb.innerHTML = ''; return; }
+    tb.innerHTML = RATINGS.map((R, i) => {
+        const s = desc(d.map(x => x.rates[i]));
+        if (!s) return `<tr><td class="p-3 font-bold">${R.label}</td><td colspan="4" class="p-3 text-center">–</td></tr>`;
+        const p45 = pct(valid(d.map(x => x.rates[i])).filter(v => v >= 4).length, s.n);
+        return `<tr><td class="p-3 font-bold text-slate-700">${R.label}</td><td class="p-3 text-center">${s.n}</td>
+            <td class="p-3 text-center font-bold">${fmt(s.mean)} (${fmt(s.sd)})</td><td class="p-3 text-center text-slate-500">${fmt(s.median)} (${fmt(s.iqr)})</td>
+            <td class="p-3 text-center font-black text-emerald-600">${fmt(p45, 1)}%</td></tr>`;
+    }).join('') + (rm ? `<tr class="bg-emerald-50"><td class="p-3 font-black">Keseluruhan (purata 4 aspek)</td><td class="p-3 text-center">${rm.n}</td>
+        <td class="p-3 text-center font-black">${fmt(rm.mean)} (${fmt(rm.sd)})</td><td class="p-3 text-center">${fmt(rm.median)} (${fmt(rm.iqr)})</td><td class="p-3 text-center">–</td></tr>` : '');
+
+    const stackData = [1, 2, 3, 4, 5].map(score => RATINGS.map((R, i) => {
+        const v = valid(d.map(x => x.rates[i])); return v.length ? +pct(v.filter(s => s === score).length, v.length).toFixed(1) : 0;
+    }));
+    draw('chartRatingStack', big => ({
+        type: 'bar',
+        data: { labels: RATINGS.map(r => r.label), datasets: stackData.map((vals, k) => ({ label: 'Skor ' + (k + 1), data: vals, backgroundColor: SCORE_COLORS[k] })) },
+        options: {
+            indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+            scales: { x: { stacked: true, max: 100, ticks: { callback: v => v + '%' } }, y: { stacked: true, ticks: { font: { size: big ? 13 : 10 } } } },
+            plugins: {
+                legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: big ? 13 : 10 } } },
+                datalabels: { color: c => c.datasetIndex === 2 ? '#334155' : '#fff', font: { weight: 'bold', size: big ? 12 : 9 }, display: c => c.dataset.data[c.dataIndex] >= 6, formatter: v => v.toFixed(0) + '%' }
+            }
+        }
+    }));
+
+    const am = countBy(d.filter(x => x.Amalan !== 'Tidak Nyata'), 'Amalan', ['Ya', 'Niat', 'Tidak']);
+    draw('chartAmalan', doughnutBuilder(am.labels, am.values, am.labels.map(l => ({ Ya: '#10B981', Niat: '#F59E0B', Tidak: '#EF4444' }[l]))));
+    const lg = countBy(d.filter(x => x.LihatLogo !== 'Tidak Nyata'), 'LihatLogo', ['Ya', 'Tidak']);
+    draw('chartLogo', doughnutBuilder(lg.labels, lg.values, lg.labels.map(l => l === 'Ya' ? '#7C3AED' : '#CBD5E1')));
+
+    const byD = {};
+    d.filter(x => isNum(x.RatingMean)).forEach(x => (byD[x.Daerah] = byD[x.Daerah] || []).push(x.RatingMean));
+    const dl = Object.keys(byD).sort((a, b) => jStat.mean(byD[b]) - jStat.mean(byD[a]));
+    draw('chartRatingDaerah', barBuilder(dl.map(k => `${k} (n=${byD[k].length})`), dl.map(k => +jStat.mean(byD[k]).toFixed(2)),
+        { horizontal: true, min: 1, max: 5, color: '#10B981', fmtVal: v => v.toFixed(2) }));
+}
+
+function renderCoverage() {
+    const tb = document.getElementById('coverageRows');
+    const counts = {};
+    filteredData.forEach(d => counts[d.Daerah] = (counts[d.Daerah] || 0) + 1);
+    const names = [...new Set([...targets.map(t => t.daerah), ...Object.keys(counts)])].sort();
+    if (!names.length) { tb.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Tiada data.</td></tr>`; return; }
+    let tT = 0, tA = 0, tS = 0, tR = 0;
+    tb.innerHTML = names.map(n => {
+        const t = targets.find(x => x.daerah === n);
+        const resp = counts[n] || 0;
+        const base = t ? (isNum(t.actual) ? t.actual : t.target) : NaN;
+        const tgtResp = t ? Math.ceil(base * t.pct) : NaN;
+        const ach = isNum(tgtResp) && tgtResp ? pct(resp, tgtResp) : NaN;
+        if (t) { tT += t.target; tA += isNum(t.actual) ? t.actual : 0; tS += tgtResp; }
+        tR += resp;
+        const col = !isNum(ach) ? '#94a3b8' : ach >= 100 ? '#059669' : ach >= 50 ? '#d97706' : '#dc2626';
+        return `<tr><td class="p-3 font-bold">${esc(n)}</td><td class="p-3 text-center">${t ? t.target : '–'}</td>
+            <td class="p-3 text-center">${t && isNum(t.actual) ? t.actual : '<span class="text-slate-400">belum diisi</span>'}</td>
+            <td class="p-3 text-center">${isNum(tgtResp) ? tgtResp + ` <span class="text-slate-400">(${Math.round(t.pct * 100)}%)</span>` : '–'}</td>
+            <td class="p-3 text-center font-black">${resp}</td>
+            <td class="p-3 text-center font-black" style="color:${col}">${isNum(ach) ? fmt(ach, 1) + '%' : '–'}</td></tr>`;
+    }).join('') + `<tr class="bg-slate-50 font-black"><td class="p-3">JUMLAH</td><td class="p-3 text-center">${tT || '–'}</td><td class="p-3 text-center">${tA || '–'}</td>
+        <td class="p-3 text-center">${tS || '–'}</td><td class="p-3 text-center">${tR}</td><td class="p-3 text-center">${tS ? fmt(pct(tR, tS), 1) + '%' : '–'}</td></tr>`;
+    if (!targets.length) tb.innerHTML += `<tr><td colspan="6" class="p-3 text-center text-[10px] text-amber-600">Sheet2 (sasaran) tidak dapat dimuat — hanya bilangan responden dipaparkan.</td></tr>`;
+}
+
+/* =====================================================================
+   INFERENSI
+   ===================================================================== */
+function populateInferCats() {
+    const c = document.getElementById('inferCat');
+    if (!c.options.length) c.innerHTML = INFER_CATS.map(([k, l]) => `<option value="${k}">${l}</option>`).join('');
+    populateSubGroups();
+}
+function populateSubGroups() {
+    const cat = document.getElementById('inferCat').value;
+    const vals = uniqueVals(cat).filter(v => v !== 'Tidak Nyata');
+    document.getElementById('inferSub').innerHTML = `<option value="__ALL__">Bandingkan semua kumpulan</option>` +
+        vals.map(v => `<option value="${esc(v)}">${esc(v)} vs lain-lain</option>`).join('');
+}
+function runComparison() {
+    const cat = document.getElementById('inferCat').value, sub = document.getElementById('inferSub').value;
+    const base = filteredData.filter(d => d[cat] && d[cat] !== 'Tidak Nyata');
+    const head = document.getElementById('inferHead'), tb = document.getElementById('inferRows');
+    const vars = [...DIM_KEYS, 'RatingMean'];
+    const sumTxt = s => s ? (Math.abs(s.skew) <= 1 ? `${fmt(s.mean)} (${fmt(s.sd)})` : `${fmt(s.median)} [${fmt(s.iqr)}]`) : '–';
+    let rows = '';
+
+    if (sub === '__ALL__') {
+        const groups = uniqueVals(cat, base).filter(v => v !== 'Tidak Nyata');
+        head.innerHTML = `<tr><th class="p-4">Pembolehubah</th>${groups.map(g => `<th class="p-4 text-center">${esc(g)}</th>`).join('')}<th class="p-4 text-center">Ujian</th><th class="p-4 text-center">Statistik</th><th class="p-4 text-center">p-value</th></tr>`;
+        vars.forEach(v => {
+            const gs = groups.map(g => valid(base.filter(d => d[cat] === g).map(d => d[v])));
+            const use = gs.filter(a => a.length >= 2);
+            const cells = gs.map(a => { const s = desc(a); return `<td class="p-4 text-center text-xs">${s ? `${fmt(s.median)} [${fmt(s.iqr)}]<br><span class="text-slate-400">n=${s.n}</span>` : '–'}</td>`; }).join('');
+            if (use.length < 2) { rows += `<tr><td class="p-4 font-bold">${DIM_LABELS[v]}</td>${cells}<td colspan="3" class="p-4 text-center text-slate-400">Data tidak mencukupi</td></tr>`; return; }
+            const r = kruskal(use);
+            rows += `<tr><td class="p-4 font-bold">${DIM_LABELS[v]}</td>${cells}<td class="p-4 text-center text-[10px] uppercase text-slate-500">${r.label}</td>
+                <td class="p-4 text-center text-xs">H=${fmt(r.stat)}, df=${r.df}</td><td class="p-4 text-center font-bold"><span class="${r.p < 0.05 ? 'p-sig' : ''}">${r.p < 0.001 ? '<0.001' : fmt(r.p, 3)}</span></td></tr>`;
+        });
+        document.getElementById('inferNote').innerText = 'Nilai dipaparkan sebagai median [IQR]. Kruskal-Wallis digunakan kerana skor Likert biasanya tidak bertaburan normal. Jika p<0.05, lakukan perbandingan pasangan dengan pembetulan (cth. Bonferroni).';
+    } else {
+        head.innerHTML = `<tr><th class="p-4">Pembolehubah</th><th class="p-4 text-center bg-indigo-50">${esc(sub)}</th><th class="p-4 text-center">Lain-lain</th><th class="p-4 text-center">Ujian</th><th class="p-4 text-center">Statistik</th><th class="p-4 text-center">p-value</th></tr>`;
+        vars.forEach(v => {
+            const s1 = valid(base.filter(d => d[cat] === sub).map(d => d[v]));
+            const s2 = valid(base.filter(d => d[cat] !== sub).map(d => d[v]));
+            if (s1.length < 2 || s2.length < 2) { rows += `<tr><td class="p-4 font-bold">${DIM_LABELS[v]}</td><td colspan="5" class="p-4 text-center text-slate-400">Data tidak mencukupi</td></tr>`; return; }
+            const d1 = desc(s1), d2 = desc(s2);
+            const normal = Math.abs(d1.skew) <= 1 && Math.abs(d2.skew) <= 1;
+            const r = normal ? welchT(s1, s2) : mannWhitney(s1, s2);
+            const show = s => normal ? `${fmt(s.mean)} (${fmt(s.sd)})` : `${fmt(s.median)} [${fmt(s.iqr)}]`;
+            const stat = normal ? `t=${fmt(r.stat)}, df=${fmt(r.df, 1)}` : `U=${fmt(r.stat, 1)}, z=${fmt(r.z)}`;
+            rows += `<tr><td class="p-4 font-bold">${DIM_LABELS[v]}</td><td class="p-4 text-center bg-indigo-50/40">${show(d1)}<br><span class="text-[10px] text-slate-400">n=${d1.n}</span></td>
+                <td class="p-4 text-center">${show(d2)}<br><span class="text-[10px] text-slate-400">n=${d2.n}</span></td>
+                <td class="p-4 text-center text-[10px] uppercase text-slate-500">${r.label}</td><td class="p-4 text-center text-xs">${stat}</td>
+                <td class="p-4 text-center font-bold"><span class="${r.p < 0.05 ? 'p-sig' : ''}">${r.p < 0.001 ? '<0.001' : fmt(r.p, 3)}</span></td></tr>`;
+        });
+        document.getElementById('inferNote').innerText = 'Mean (SD) dipaparkan untuk ujian parametrik (Welch t-test, kedua-dua kumpulan |skewness| ≤ 1); median [IQR] untuk Mann-Whitney U. p<0.05 diserlahkan hijau.';
+    }
+    tb.innerHTML = rows;
+}
+
+/* =====================================================================
+   RUMUSAN
+   ===================================================================== */
+function generateAIReport() {
+    const d = filteredData, n = d.length;
+    if (!n) return;
+    const sv = d.filter(x => x.stigValid);
+    let msg = `RUMUSAN STATISTIK KERJASAMA KEDAH-UUM (N=${n})\n\n`;
+    if (sv.length) {
+        const t = desc(sv.map(x => x.TotalStig9));
+        const lvlName = STIG_LEVELS[stigLevel(t.mean)].toUpperCase();
+        const lv = STIG_LEVELS.map((_, i) => pct(sv.filter(x => x.StigLevel === i).length, sv.length));
+        const dimMeans = ['Afektif', 'Kognitif', 'TingkahLaku'].map(k => [k, jStat.mean(sv.map(x => x[k]))]).sort((a, b) => b[1] - a[1]);
+        const itemMeans = ITEMS.map((txt, i) => [i, jStat.mean(sv.map(x => x.q[i]))]).sort((a, b) => b[1] - a[1]);
+        msg += `1. TAHAP PERSEPSI STIGMA KOMUNITI: Skor min STIG-9 ialah ${fmt(t.mean)} (SD ${fmt(t.sd)}; median ${fmt(t.median)}, IQR ${fmt(t.iqr)}; n=${t.n}), iaitu pada tahap ${lvlName} (setara skor jumlah asal 0–27 = ${fmt((t.mean - 1) * 9, 1)}). Ini menggambarkan sejauh mana responden menjangka masyarakat menstigma individu yang pernah dirawat, bukan sikap peribadi responden. Taburan responden: sangat rendah ${fmt(lv[0], 1)}%, rendah/sederhana ${fmt(lv[1], 1)}%, tinggi ${fmt(lv[2], 1)}%, sangat tinggi ${fmt(lv[3], 1)}%.\n\n`;
+        msg += `2. DIMENSI DOMINAN: Dimensi '${DIM_LABELS[dimMeans[0][0]]}' mencatat skor min tertinggi (${fmt(dimMeans[0][1])}), menunjukkan keperluan intervensi khusus menangani isu ${DIM_THEME[dimMeans[0][0]]}.\n\n`;
+        msg += `3. ITEM TERTINGGI: Q${itemMeans[0][0] + 1} – "${ITEMS[itemMeans[0][0]].toLowerCase()}" (min ${fmt(itemMeans[0][1])}), diikuti Q${itemMeans[1][0] + 1} (min ${fmt(itemMeans[1][1])}).\n\n`;
+        msg += `4. TABURAN DATA: Skewness skor total = ${fmt(t.skew)} → ${Math.abs(t.skew) > 1 ? 'tidak normal; gunakan ujian non-parametrik dan laporkan median (IQR)' : 'menghampiri normal; ujian parametrik boleh dipertimbangkan'}.\n\n`;
+    } else msg += `1. Tiada data STIG-9 yang lengkap dalam pilihan penapis ini.\n\n`;
+
+    const rm = desc(d.map(x => x.RatingMean));
+    if (rm) {
+        const per = RATINGS.map((R, i) => [R.label, jStat.mean(valid(d.map(x => x.rates[i])))]).sort((a, b) => b[1] - a[1]);
+        msg += `5. PENILAIAN PROGRAM: Min skor penilaian keseluruhan ${fmt(rm.mean)}/5 (SD ${fmt(rm.sd)}). Aspek tertinggi: ${per[0][0]} (${fmt(per[0][1])}); terendah: ${per[per.length - 1][0]} (${fmt(per[per.length - 1][1])}).\n\n`;
+    }
+    const logoN = d.filter(x => x.LihatLogo !== 'Tidak Nyata');
+    const amN = d.filter(x => x.Amalan !== 'Tidak Nyata');
+    msg += `6. PENDEDAHAN & AMALAN: ${fmt(pct(logoN.filter(x => x.LihatLogo === 'Ya').length, logoN.length), 1)}% responden pernah melihat logo Hentikan Stigma. ${fmt(pct(amN.filter(x => x.Amalan === 'Ya').length, amN.length), 1)}% mengamalkan penjagaan kendiri dan ${fmt(pct(amN.filter(x => x.Amalan === 'Niat').length, amN.length), 1)}% berniat untuk mengamalkannya.`;
+    const dups = d.filter(x => x.isDup).length;
+    if (dups && !document.getElementById('fDedup').checked) msg += `\n\nNota kualiti data: ${dups} rekod mempunyai jawapan identik dengan rekod lain (kemungkinan penghantaran berulang). Pertimbangkan untuk menanda kotak "Kecualikan rekod pendua".`;
+    document.getElementById('aiComment').innerText = msg;
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
 </body>
 </html>

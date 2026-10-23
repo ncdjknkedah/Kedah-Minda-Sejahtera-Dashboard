@@ -27,6 +27,24 @@
         .lvl-2 { background:#fefce8; color:#a16207; }
         .lvl-3 { background:#fff7ed; color:#c2410c; }
         .lvl-4 { background:#fef2f2; color:#b91c1c; }
+        .info-dot { display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:999px; background:#e0e7ff; color:#3730a3; font:italic 900 11px Georgia,serif; vertical-align:middle; margin-left:6px; cursor:pointer; border:none; text-transform:none; }
+        .info-dot:hover { background:#4f46e5; color:#fff; }
+        #infoModal { display:none; position:fixed; z-index:10000; inset:0; background:rgba(15,23,42,.85); backdrop-filter:blur(6px); }
+        .info-box { background:#fff; width:94%; max-width:1080px; height:90vh; margin:4vh auto; border-radius:1.75rem; display:flex; overflow:hidden; }
+        .info-nav { width:230px; flex-shrink:0; background:#1e1b4b; color:#c7d2fe; padding:1.25rem .75rem; overflow-y:auto; }
+        .info-nav a { display:block; padding:.55rem .8rem; border-radius:.75rem; font-size:12px; font-weight:700; cursor:pointer; }
+        .info-nav a:hover, .info-nav a.on { background:#4f46e5; color:#fff; }
+        .info-body { flex:1; overflow-y:auto; padding:2rem 2.25rem; font-size:14px; line-height:1.75; color:#334155; scroll-behavior:smooth; }
+        .info-body h3 { font-size:18px; font-weight:900; color:#1e1b4b; margin:0 0 .75rem; padding-top:.25rem; text-transform:uppercase; letter-spacing:-.01em; }
+        .info-body h4 { font-size:13px; font-weight:800; color:#4338ca; margin:1.1rem 0 .3rem; text-transform:uppercase; }
+        .info-body section { padding-bottom:1.75rem; margin-bottom:1.75rem; border-bottom:1px dashed #e2e8f0; }
+        .info-body ul { list-style:disc; padding-left:1.25rem; } .info-body li { margin:.2rem 0; }
+        .info-body table { width:100%; font-size:12.5px; border-collapse:collapse; margin:.5rem 0; }
+        .info-body th, .info-body td { border:1px solid #e2e8f0; padding:.4rem .6rem; text-align:left; vertical-align:top; }
+        .info-body th { background:#f1f5f9; font-size:11px; text-transform:uppercase; }
+        .callout { background:#eef2ff; border-left:4px solid #4f46e5; padding:.75rem 1rem; border-radius:.5rem; margin:.75rem 0; }
+        .callout.warn { background:#fffbeb; border-color:#f59e0b; }
+        @media (max-width:768px){ .info-nav{display:none} .info-body{padding:1.25rem} }
         .sec-title { font-weight:900; text-transform:uppercase; letter-spacing:-.01em; }
         select, input[type=date] { min-height: 42px; }
     </style>
@@ -42,11 +60,177 @@
         </div>
     </div>
 
+    <!-- MODAL PANDUAN -->
+    <div id="infoModal" onclick="if(event.target===this) closeInfo()">
+        <div class="info-box">
+            <nav class="info-nav">
+                <p class="text-[10px] font-black uppercase tracking-widest text-indigo-300 px-3 mb-3">📘 Panduan</p>
+                <a data-t="info-stig" onclick="openInfo('stig')">1. Tentang STIG-9</a>
+                <a data-t="info-item" onclick="openInfo('item')">2. Item STIG-9</a>
+                <a data-t="info-skor" onclick="openInfo('skor')">3. Pengiraan &amp; Tafsiran Skor</a>
+                <a data-t="info-program" onclick="openInfo('program')">4. Penilaian Program</a>
+                <a data-t="info-dash" onclick="openInfo('dash')">5. Panduan Komponen Dashboard</a>
+                <a data-t="info-inferensi" onclick="openInfo('inferensi')">6. Analisa Inferensi</a>
+                <a data-t="info-liputan" onclick="openInfo('liputan')">7. Liputan &amp; Sasaran</a>
+                <a data-t="info-limitasi" onclick="openInfo('limitasi')">8. Kualiti Data &amp; Limitasi</a>
+                <a data-t="info-rujukan" onclick="openInfo('rujukan')">9. Rujukan</a>
+                <button onclick="closeInfo()" class="mt-6 mx-3 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-[11px] font-black uppercase">✕ Tutup</button>
+            </nav>
+            <div class="info-body" id="infoBody" onscroll="syncInfoNav()">
+                <div class="flex justify-end md:hidden mb-2"><button onclick="closeInfo()" class="text-red-500 font-black text-2xl">&times;</button></div>
+
+                <section id="info-stig">
+                    <h3>1. Tentang STIG-9</h3>
+                    <p><b>STIG-9 (Stigma-9 Questionnaire)</b> ialah soal selidik ringkas 9 item untuk mengukur <b>stigma kesihatan mental yang dipersepsikan</b> (<i>perceived stigma</i>) — iaitu sejauh mana seseorang <b>menjangka masyarakat</b> mempunyai kepercayaan, perasaan dan tingkah laku negatif terhadap individu yang pernah dirawat kerana masalah kesihatan mental.</p>
+                    <ul>
+                        <li>Dibangunkan oleh Gierk, Löwe, Murray &amp; Kohlmann di University Medical Center Hamburg-Eppendorf, Jerman, berasaskan <i>Modified Labelling Theory</i> (Link) — penstrukturan semula skala <i>Perceived Devaluation-Discrimination</i>.</li>
+                        <li>Kajian validasi asal (919 pesakit klinik kesihatan mental) menyokong <b>struktur satu faktor</b> dengan ketekalan dalaman yang tinggi.</li>
+                        <li>Item merangkumi aspek <b>kognitif</b> (kepercayaan/stereotaip), <b>afektif</b> (prasangka/emosi) dan <b>tingkah laku</b> (diskriminasi).</li>
+                    </ul>
+                    <div class="callout"><b>Penting untuk tafsiran:</b> setiap item bermula dengan frasa <b>"Saya rasa kebanyakan orang…"</b>. Maka skor tinggi bermaksud responden <b>merasakan stigma dalam komuniti adalah tinggi</b> — ia <u>bukan</u> ukuran langsung sikap stigma peribadi responden.</div>
+                    <h4>Konteks Kempen</h4>
+                    <p>Dalam <b>Kempen Hentikan Stigma, Kesihatan Mental Milik Semua</b> (NCEMH, KKM), STIG-9 digunakan sebagai <i>Random Survey</i> (Item 4j, Lampiran A) untuk membangunkan <b>data asas (baseline) stigma kesihatan mental</b> (Objektif 2.2). Sasaran: sekurang-kurangnya <b>30% daripada sasaran minimum pengunjung</b> menjawab.</p>
+                </section>
+
+                <section id="info-item">
+                    <h3>2. Item STIG-9 (Versi Bahasa Melayu)</h3>
+                    <table>
+                        <tr><th>Item</th><th>"Saya rasa kebanyakan orang…"</th><th>Aspek</th><th>Dimensi*</th></tr>
+                        <tr><td>Q1</td><td>berasa tidak senang apabila seseorang yang pernah dirawat berpindah ke kawasan kejiranan</td><td>Jarak sosial (kejiranan)</td><td>Afektif</td></tr>
+                        <tr><td>Q2</td><td>tidak akan menjalin hubungan dengan seseorang yang pernah dirawat</td><td>Hubungan peribadi</td><td>Tingkah Laku</td></tr>
+                        <tr><td>Q3</td><td>tidak akan melayan permohonan pekerjaan daripada seseorang yang pernah dirawat</td><td>Diskriminasi pekerjaan</td><td>Tingkah Laku</td></tr>
+                        <tr><td>Q4</td><td>teragak-agak meninggalkan anak dengan seseorang yang telah dirawat</td><td>Kepercayaan menjaga anak</td><td>Tingkah Laku</td></tr>
+                        <tr><td>Q5</td><td>menganggap masalah kesihatan mental sebagai tanda kelemahan diri</td><td>Stereotaip kelemahan</td><td>Kognitif</td></tr>
+                        <tr><td>Q6</td><td>bersangka buruk terhadap seseorang yang mempunyai masalah kesihatan mental</td><td>Pandangan negatif</td><td>Kognitif</td></tr>
+                        <tr><td>Q7</td><td>teragak-agak untuk berurusan (perniagaan) dengan seseorang yang pernah dirawat</td><td>Urusan ekonomi</td><td>Tingkah Laku</td></tr>
+                        <tr><td>Q8</td><td>menganggap individu yang pernah dirawat sebagai berbahaya</td><td>Stereotaip bahaya</td><td>Kognitif</td></tr>
+                        <tr><td>Q9</td><td>memandang kurang serius pendapat seseorang yang pernah dirawat</td><td>Merendahkan pendapat</td><td>Afektif</td></tr>
+                    </table>
+                    <p class="text-xs text-slate-500">*Pengelompokan dimensi mengikut tetapan dashboard ini (boleh diubah dalam pemalar <code>DIMS</code> di dalam kod).</p>
+                </section>
+
+                <section id="info-skor">
+                    <h3>3. Pengiraan &amp; Tafsiran Skor</h3>
+                    <h4>Skala jawapan</h4>
+                    <table><tr><th>Jawapan</th><th>Skor dashboard</th><th>Skor asal STIG-9</th></tr>
+                        <tr><td>Tidak setuju</td><td>1</td><td>0</td></tr><tr><td>Agak tidak setuju</td><td>2</td><td>1</td></tr>
+                        <tr><td>Agak setuju</td><td>3</td><td>2</td></tr><tr><td>Setuju</td><td>4</td><td>3</td></tr></table>
+                    <h4>Cara pengiraan dalam dashboard</h4>
+                    <ul>
+                        <li><b>Skor item</b> = nilai 1–4 bagi setiap soalan.</li>
+                        <li><b>Skor Total STIG-9</b> = purata 9 item (julat 1.00–4.00). Hanya responden yang menjawab <b>kesemua 9 item</b> dimasukkan.</li>
+                        <li><b>Skor dimensi</b> = purata item dalam dimensi berkenaan (Afektif: Q1, Q9; Kognitif: Q5, Q6, Q8; Tingkah Laku: Q2, Q3, Q4, Q7).</li>
+                        <li><b>Penukaran ke skor asal (0–27)</b> untuk perbandingan dengan literatur: <code>Skor jumlah = (Skor Total − 1) × 9</code>. Contoh: purata 2.00 ≈ skor jumlah 9.</li>
+                    </ul>
+                    <h4>Tahap tafsiran</h4>
+                    <table><tr><th>Skor purata</th><th>Tahap persepsi stigma</th></tr>
+                        <tr><td>1.00 – 1.75</td><td><span class="lvl lvl-1">Sangat rendah</span></td></tr>
+                        <tr><td>1.76 – 2.50</td><td><span class="lvl lvl-2">Rendah / sederhana</span></td></tr>
+                        <tr><td>2.51 – 3.25</td><td><span class="lvl lvl-3">Tinggi</span></td></tr>
+                        <tr><td>3.26 – 4.00</td><td><span class="lvl lvl-4">Sangat tinggi</span></td></tr></table>
+                    <div class="callout warn">Tahap ini ialah sela sama lebar yang ditetapkan untuk tujuan pelaporan kajian ini. <b>STIG-9 asal tidak mempunyai titik potong (cut-off) rasmi</b>; pembangun hanya melaporkan skor rujukan populasi. Laporkan juga skor min/median sebenar, bukan tahap sahaja.</div>
+                    <h4>Statistik deskriptif yang dipaparkan</h4>
+                    <ul>
+                        <li><b>Mean (SD)</b> — purata dan sisihan piawai; sesuai jika taburan hampir normal.</li>
+                        <li><b>Median (IQR)</b> — nilai tengah dan julat antara kuartil; lebih tepat bagi data Likert yang condong.</li>
+                        <li><b>Skewness</b> — |skew| ≤ 1 (hijau) dianggap hampir normal; &gt; 1 (merah) condong. Data STIG-9 lazimnya condong ke kanan (ramai menjawab "Tidak setuju").</li>
+                    </ul>
+                </section>
+
+                <section id="info-program">
+                    <h3>4. Penilaian Program (Lampiran B)</h3>
+                    <h4>Bahagian 2: Amalan Penjagaan Kendiri</h4>
+                    <p>"Adakah anda pernah mengamalkan aktiviti penjagaan kendiri untuk mengurangkan stres?" (cth. bersyukur, bernafas dengan teratur, beriadah, berkongsi masalah).</p>
+                    <ul><li><b>Ya</b> — sudah mengamalkan</li><li><b>Niat</b> — belum, tetapi berniat mengamalkan selepas program (petunjuk awal kesan program)</li><li><b>Tidak</b> — tidak pernah mengamalkan</li></ul>
+                    <p>Berkait dengan Objektif 2.3 kempen: menggalakkan amalan penjagaan kendiri dan kemahiran daya tindak.</p>
+                    <h4>Bahagian 3: Pendedahan Logo Hentikan Stigma</h4>
+                    <p>Peratus responden yang pernah melihat logo "Hentikan Stigma, Kesihatan Mental Milik Semua" — petunjuk <b>jangkauan (reach)</b> hebahan kempen (Objektif 2.1).</p>
+                    <h4>Bahagian 4: Persepsi &amp; Kepuasan Program</h4>
+                    <p>Skala 1–5: <b>1</b> Sangat Lemah · <b>2</b> Lemah · <b>3</b> Memuaskan · <b>4</b> Baik · <b>5</b> Sangat Cemerlang.</p>
+                    <table><tr><th>Aspek</th><th>Soalan</th></tr>
+                        <tr><td>Menarik Perhatian</td><td>Adakah pameran, aktiviti &amp; penyampaian maklumat menarik minat anda?</td></tr>
+                        <tr><td>Mudah Difahami</td><td>Adakah mesej disampaikan dengan mudah difahami?</td></tr>
+                        <tr><td>Relevan</td><td>Adakah topik dan pengisian aktiviti relevan dengan keperluan diri dan masyarakat?</td></tr>
+                        <tr><td>Mendorong Perubahan</td><td>Adakah kempen ini mendorong anda mengamalkan penjagaan kesihatan mental yang baik?</td></tr></table>
+                    <ul>
+                        <li><b>Min skor penilaian</b> = purata 4 aspek bagi setiap responden, kemudian dipuratakan.</li>
+                        <li><b>% Baik / Sangat Cemerlang</b> = peratus jawapan bernilai 4 atau 5 (<i>top-2-box</i>) — penunjuk kepuasan yang mudah difahami pengurusan.</li>
+                    </ul>
+                </section>
+
+                <section id="info-dash">
+                    <h3>5. Panduan Komponen Dashboard</h3>
+                    <table>
+                        <tr><th>Komponen</th><th>Apa yang dipaparkan / cara membaca</th></tr>
+                        <tr><td>Penapis</td><td>Semua carta &amp; jadual dikira semula mengikut penapis demografi, daerah, tarikh program dan pendedahan logo/amalan. Tarikh menggunakan <i>tarikh program</i>, bukan tarikh isian borang.</td></tr>
+                        <tr><td>Jumlah Responden (N)</td><td>Bilangan rekod selepas penapis.</td></tr>
+                        <tr><td>Statistik Umur</td><td>Min (SD), median (IQR) dan julat umur. Umur &lt; 5 tahun dianggap ralat input dan dikecualikan.</td></tr>
+                        <tr><td>Kualiti Data</td><td>Bilangan rekod lengkap STIG-9 dan penilaian, rekod pendua, tiada tarikh, dan umur tidak sah.</td></tr>
+                        <tr><td>Carta demografi</td><td>Bilangan dan peratus mengikut kategori. Klik mana-mana carta untuk paparan besar.</td></tr>
+                        <tr><td>Jadual item STIG-9</td><td>Statistik setiap item dan tahapnya — kenal pasti <b>bentuk stigma paling ketara</b> untuk fokus mesej intervensi.</td></tr>
+                        <tr><td>Boxplot dimensi</td><td>Kotak = IQR (25–75%), garis tengah = median, misai = julat tanpa outlier, titik = outlier. Kotak lebih tinggi = persepsi stigma lebih tinggi.</td></tr>
+                        <tr><td>Tahap Stigma Responden</td><td>Peratus responden dalam setiap tahap berdasarkan skor total masing-masing.</td></tr>
+                        <tr><td>STIG-9 mengikut daerah</td><td>Min skor total setiap daerah (n dalam kurungan). Tafsir dengan berhati-hati jika n kecil.</td></tr>
+                        <tr><td>Taburan skor penilaian</td><td>Bar bertindan 100%: merah (1) hingga hijau (5) bagi setiap aspek.</td></tr>
+                        <tr><td>Amalan / Logo / Penilaian mengikut daerah</td><td>Lihat Bahagian 4.</td></tr>
+                        <tr><td>Jana Rumusan</td><td>Ringkasan automatik berdasarkan data yang ditapis — semak semula sebelum dimasukkan ke dalam laporan rasmi.</td></tr>
+                    </table>
+                </section>
+
+                <section id="info-inferensi">
+                    <h3>6. Analisa Inferensi</h3>
+                    <p>Membandingkan skor STIG-9 (total &amp; dimensi) dan skor penilaian program antara kumpulan. Ujian dipilih secara automatik:</p>
+                    <table><tr><th>Pilihan</th><th>Ujian</th><th>Bila digunakan</th><th>Nilai dipaparkan</th></tr>
+                        <tr><td rowspan="2">Satu kumpulan vs lain-lain</td><td>Welch t-test</td><td>Kedua-dua kumpulan |skewness| ≤ 1</td><td>Mean (SD)</td></tr>
+                        <tr><td>Mann-Whitney U</td><td>Salah satu kumpulan condong</td><td>Median [IQR]</td></tr>
+                        <tr><td>Bandingkan semua kumpulan</td><td>Kruskal-Wallis</td><td>Lebih daripada 2 kumpulan</td><td>Median [IQR]</td></tr></table>
+                    <ul>
+                        <li><b>p &lt; 0.05</b> (diserlahkan hijau) = perbezaan signifikan secara statistik.</li>
+                        <li>Dengan sampel besar, perbezaan yang sangat kecil boleh menjadi signifikan — nilai juga <b>magnitud perbezaan</b> (contoh beza min 0.1 pada skala 1–4 adalah kecil secara praktikal).</li>
+                        <li>Apabila banyak perbandingan dibuat, risiko keputusan positif palsu meningkat — pertimbangkan pembetulan Bonferroni.</li>
+                        <li>Analisa ini bersifat <b>perbandingan tanpa kawalan</b> (unadjusted); ia tidak menunjukkan hubungan sebab-akibat.</li>
+                    </ul>
+                </section>
+
+                <section id="info-liputan">
+                    <h3>7. Liputan &amp; Sasaran</h3>
+                    <ul>
+                        <li>Data sasaran dibaca daripada <b>Sheet2</b> Google Sheet (Sasaran Pengunjung, % Sasaran Responden, Bilangan Pengunjung Sebenar).</li>
+                        <li><b>Sasaran responden</b> = % sasaran × pengunjung sebenar (atau sasaran pengunjung jika data sebenar belum diisi).</li>
+                        <li><b>Pencapaian</b>: hijau ≥ 100%, jingga 50–99%, merah &lt; 50%.</li>
+                        <li>Panduan kebangsaan: minimum <b>30% daripada sasaran minimum pengunjung</b> perlu menjawab STIG-9 dan tinjauan kepuasan (sasaran minimum pengunjung Kedah = 700 orang bagi peringkat negeri).</li>
+                    </ul>
+                </section>
+
+                <section id="info-limitasi">
+                    <h3>8. Kualiti Data &amp; Limitasi</h3>
+                    <ul>
+                        <li><b>Rekod pendua</b>: rekod dengan jawapan identik sepenuhnya mungkin penghantaran berulang. Gunakan kotak "Kecualikan rekod pendua" untuk analisa sensitiviti.</li>
+                        <li><b>Persampelan</b>: responden ialah pengunjung program (sampel mudah/kemudahan), bukan sampel rawak populasi. Dapatan tidak semestinya mewakili seluruh penduduk daerah/negeri.</li>
+                        <li><b>Bias keinginan sosial</b>: borang diisi di lokasi program kesihatan mental — responden mungkin cenderung memberi jawapan yang "positif".</li>
+                        <li><b>Kanak-kanak &amp; remaja</b>: STIG-9 divalidasi pada orang dewasa; tafsir skor responden bawah 18 tahun dengan berhati-hati.</li>
+                        <li><b>Dimensi</b>: STIG-9 asal disahkan sebagai skala satu faktor; skor dimensi adalah analisa penerokaan — <b>Skor Total</b> ialah penunjuk utama.</li>
+                        <li><b>Pengesahan versi BM</b>: kesahan &amp; kebolehpercayaan terjemahan Bahasa Melayu perlu dirujuk/ditentukan secara berasingan (cth. Cronbach's alpha).</li>
+                    </ul>
+                </section>
+
+                <section id="info-rujukan" style="border:none">
+                    <h3>9. Rujukan</h3>
+                    <ul>
+                        <li>Gierk B, Löwe B, Murray AM, Kohlmann S. Assessment of perceived mental health-related stigma: The Stigma-9 Questionnaire (STIG-9). <i>Psychiatry Research</i>. 2018;270:822–830.</li>
+                        <li>Link BG. Understanding labeling effects in the area of mental disorders: an assessment of the effects of expectations of rejection. <i>American Sociological Review</i>. 1987;52(1):96–112.</li>
+                        <li>Kementerian Kesihatan Malaysia (NCEMH). <i>Panduan Pelaksanaan Kempen Hentikan Stigma, Kesihatan Mental Milik Semua Peringkat Negeri</i> — Lampiran A (STIG-9) &amp; Lampiran B (Borang Demografi &amp; Penilaian Keberkesanan Program).</li>
+                    </ul>
+                </section>
+            </div>
+        </div>
+    </div>
+
     <!-- HEADER -->
     <header class="bg-indigo-950 text-white p-6 shadow-2xl sticky top-0 z-50">
         <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
-                <h1 class="text-2xl font-black text-indigo-400 tracking-tighter uppercase">STIG-9 Dashboard Pro v11.0</h1>
+                <h1 class="text-2xl font-black text-indigo-400 tracking-tighter uppercase">STIG-9 Dashboard Pro v11.1</h1>
                 <p class="text-slate-400 text-[10px] italic font-medium uppercase tracking-widest">Kajian Stigma Kesihatan Mental & Penilaian Program • JKN Kedah</p>
             </div>
             <div class="flex flex-col items-end gap-2">
@@ -54,6 +238,7 @@
                     <input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="handleFileUpload(event)">
                     <button onclick="document.getElementById('csvFileInput').click()" class="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-xl text-[10px] font-bold uppercase shadow-lg border border-emerald-500">Upload CSV</button>
                     <button onclick="init()" class="bg-indigo-600 hover:bg-indigo-500 px-5 py-2 rounded-xl text-[10px] font-bold uppercase shadow-lg border border-indigo-500">Kemaskini Auto</button>
+                    <button onclick="openInfo()" class="bg-amber-400 hover:bg-amber-300 text-indigo-950 px-5 py-2 rounded-xl text-[10px] font-black uppercase shadow-lg border border-amber-300">📘 Panduan STIG-9 &amp; Dashboard</button>
                 </div>
                 <div id="updateTime" class="text-[10px] text-slate-400 uppercase font-bold tracking-widest text-right">Memuatkan data...</div>
             </div>
@@ -109,11 +294,11 @@
         </section>
 
         <!-- ======================= A. STIGMA ======================= -->
-        <h2 class="sec-title text-xl text-indigo-950 border-l-8 border-indigo-600 pl-3">A. Penilaian Stigma (STIG-9)</h2>
+        <h2 class="sec-title text-xl text-indigo-950 border-l-8 border-indigo-600 pl-3">A. Persepsi Stigma Komuniti (STIG-9) <button onclick="openInfo('stig')" title="Penerangan" class="info-dot">i</button></h2>
 
         <section class="card-stat overflow-hidden !p-0 shadow-sm">
             <div class="p-6 bg-slate-50 border-b">
-                <h2 class="font-black text-slate-800 uppercase text-sm">Analisa Item STIG-9 (Deskriptif)</h2>
+                <h2 class="font-black text-slate-800 uppercase text-sm">Analisa Item STIG-9 (Deskriptif) <button onclick="openInfo('skor')" title="Penerangan" class="info-dot">i</button></h2>
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Skala 1 (Tidak setuju) – 4 (Setuju). Skor purata tinggi = stigma lebih tinggi.
                     <span class="lvl lvl-1 ml-1">1.00–1.75 Sangat rendah</span>
                     <span class="lvl lvl-2">1.76–2.50 Rendah/sederhana</span>
@@ -123,7 +308,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left">
                     <thead class="bg-slate-50 text-[10px] font-black text-slate-500 uppercase border-b">
-                        <tr><th class="p-4">Item</th><th class="p-4">Pernyataan ("Saya…")</th><th class="p-4 text-center">Mean (SD)</th><th class="p-4 text-center">Median (IQR)</th><th class="p-4 text-center">Skewness</th><th class="p-4 text-center">Tahap</th></tr>
+                        <tr><th class="p-4">Item</th><th class="p-4">Pernyataan ("Saya rasa kebanyakan orang…")</th><th class="p-4 text-center">Mean (SD)</th><th class="p-4 text-center">Median (IQR)</th><th class="p-4 text-center">Skewness</th><th class="p-4 text-center">Tahap</th></tr>
                     </thead>
                     <tbody id="stigItemRows" class="text-xs divide-y"></tbody>
                 </table>
@@ -155,7 +340,7 @@
         <section class="card-stat !p-0 overflow-hidden shadow-md">
             <div class="p-6 bg-slate-900 text-white flex flex-col md:flex-row justify-between items-center gap-4">
                 <div>
-                    <h2 class="font-black uppercase text-sm tracking-tight">Analisa Inferensi (Perbandingan Kumpulan)</h2>
+                    <h2 class="font-black uppercase text-sm tracking-tight">Analisa Inferensi (Perbandingan Kumpulan) <button onclick="openInfo('inferensi')" title="Penerangan" class="info-dot">i</button></h2>
                     <p class="text-[10px] text-slate-400 mt-1">Ujian dipilih automatik: Welch t-test (taburan normal) atau Mann-Whitney U / Kruskal-Wallis (tidak normal).</p>
                 </div>
                 <div class="flex flex-wrap gap-2 justify-center">
@@ -174,20 +359,20 @@
         </section>
 
         <!-- ======================= B. PENILAIAN PROGRAM ======================= -->
-        <h2 class="sec-title text-xl text-emerald-900 border-l-8 border-emerald-600 pl-3">B. Penilaian Program</h2>
+        <h2 class="sec-title text-xl text-emerald-900 border-l-8 border-emerald-600 pl-3">B. Penilaian Program <button onclick="openInfo('program')" title="Penerangan" class="info-dot">i</button></h2>
 
         <section class="grid grid-cols-2 md:grid-cols-4 gap-4" id="progKpi"></section>
 
         <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div class="card-stat card-click" onclick="zoomChart('chartRatingStack','Taburan Skor Penilaian Bahan / Logo (1–5)')">
-                <p class="text-[10px] font-black text-slate-400 uppercase mb-2 text-center tracking-widest">Taburan Skor Penilaian (1 = sangat rendah, 5 = sangat tinggi)</p>
+                <p class="text-[10px] font-black text-slate-400 uppercase mb-2 text-center tracking-widest">Taburan Skor (1 Sangat Lemah · 2 Lemah · 3 Memuaskan · 4 Baik · 5 Sangat Cemerlang)</p>
                 <div class="chart-container"><canvas id="chartRatingStack"></canvas></div>
             </div>
             <div class="card-stat overflow-hidden !p-0">
                 <div class="p-4 bg-slate-50 border-b"><h3 class="font-black text-slate-800 uppercase text-xs">Ringkasan Skor Penilaian</h3></div>
                 <table class="w-full text-left">
                     <thead class="text-[10px] font-black text-slate-500 uppercase border-b">
-                        <tr><th class="p-3">Aspek</th><th class="p-3 text-center">n</th><th class="p-3 text-center">Mean (SD)</th><th class="p-3 text-center">Median (IQR)</th><th class="p-3 text-center">% Skor 4–5</th></tr>
+                        <tr><th class="p-3">Aspek</th><th class="p-3 text-center">n</th><th class="p-3 text-center">Mean (SD)</th><th class="p-3 text-center">Median (IQR)</th><th class="p-3 text-center">% Baik / Sangat Cemerlang</th></tr>
                     </thead>
                     <tbody id="ratingRows" class="text-xs divide-y"></tbody>
                 </table>
@@ -211,7 +396,7 @@
 
         <section class="card-stat overflow-hidden !p-0">
             <div class="p-6 bg-slate-50 border-b">
-                <h2 class="font-black text-slate-800 uppercase text-sm">Liputan Responden vs Sasaran (Sheet2)</h2>
+                <h2 class="font-black text-slate-800 uppercase text-sm">Liputan Responden vs Sasaran (Sheet2) <button onclick="openInfo('liputan')" title="Penerangan" class="info-dot">i</button></h2>
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Sasaran responden = % sasaran × pengunjung sebenar (atau sasaran pengunjung jika data sebenar tiada). Bilangan responden ikut penapis semasa.</p>
             </div>
             <div class="overflow-x-auto">
@@ -636,7 +821,21 @@ function zoomChart(id, title) {
     requestAnimationFrame(() => { zoomRef = new Chart(document.getElementById('zoomCanvas').getContext('2d'), b(true)); });
 }
 function closeModal() { document.getElementById('chartModal').style.display = 'none'; if (zoomRef) { zoomRef.destroy(); zoomRef = null; } }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeInfo(); } });
+function openInfo(sec) {
+    document.getElementById('infoModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    const body = document.getElementById('infoBody');
+    const t = sec ? document.getElementById('info-' + sec) : null;
+    body.scrollTop = t ? t.offsetTop - body.offsetTop - 8 : 0;
+}
+function closeInfo() { document.getElementById('infoModal').style.display = 'none'; document.body.style.overflow = ''; }
+function syncInfoNav() {
+    const body = document.getElementById('infoBody');
+    let cur = null;
+    body.querySelectorAll('section[id^=info-]').forEach(s => { if (s.offsetTop - body.offsetTop - 40 <= body.scrollTop) cur = s.id; });
+    document.querySelectorAll('.info-nav a').forEach(a => a.classList.toggle('on', a.dataset.t === cur));
+}
 
 /* =====================================================================
    RENDER: KPI & DEMOGRAFI
@@ -881,7 +1080,7 @@ function generateAIReport() {
         const lv = STIG_LEVELS.map((_, i) => pct(sv.filter(x => x.StigLevel === i).length, sv.length));
         const dimMeans = ['Afektif', 'Kognitif', 'TingkahLaku'].map(k => [k, jStat.mean(sv.map(x => x[k]))]).sort((a, b) => b[1] - a[1]);
         const itemMeans = ITEMS.map((txt, i) => [i, jStat.mean(sv.map(x => x.q[i]))]).sort((a, b) => b[1] - a[1]);
-        msg += `1. TAHAP STIGMA KESELURUHAN: Skor min STIG-9 ialah ${fmt(t.mean)} (SD ${fmt(t.sd)}; median ${fmt(t.median)}, IQR ${fmt(t.iqr)}; n=${t.n}), iaitu pada tahap ${lvlName}. Taburan responden: sangat rendah ${fmt(lv[0], 1)}%, rendah/sederhana ${fmt(lv[1], 1)}%, tinggi ${fmt(lv[2], 1)}%, sangat tinggi ${fmt(lv[3], 1)}%.\n\n`;
+        msg += `1. TAHAP PERSEPSI STIGMA KOMUNITI: Skor min STIG-9 ialah ${fmt(t.mean)} (SD ${fmt(t.sd)}; median ${fmt(t.median)}, IQR ${fmt(t.iqr)}; n=${t.n}), iaitu pada tahap ${lvlName} (setara skor jumlah asal 0–27 = ${fmt((t.mean - 1) * 9, 1)}). Ini menggambarkan sejauh mana responden menjangka masyarakat menstigma individu yang pernah dirawat, bukan sikap peribadi responden. Taburan responden: sangat rendah ${fmt(lv[0], 1)}%, rendah/sederhana ${fmt(lv[1], 1)}%, tinggi ${fmt(lv[2], 1)}%, sangat tinggi ${fmt(lv[3], 1)}%.\n\n`;
         msg += `2. DIMENSI DOMINAN: Dimensi '${DIM_LABELS[dimMeans[0][0]]}' mencatat skor min tertinggi (${fmt(dimMeans[0][1])}), menunjukkan keperluan intervensi khusus menangani isu ${DIM_THEME[dimMeans[0][0]]}.\n\n`;
         msg += `3. ITEM TERTINGGI: Q${itemMeans[0][0] + 1} – "${ITEMS[itemMeans[0][0]].toLowerCase()}" (min ${fmt(itemMeans[0][1])}), diikuti Q${itemMeans[1][0] + 1} (min ${fmt(itemMeans[1][1])}).\n\n`;
         msg += `4. TABURAN DATA: Skewness skor total = ${fmt(t.skew)} → ${Math.abs(t.skew) > 1 ? 'tidak normal; gunakan ujian non-parametrik dan laporkan median (IQR)' : 'menghampiri normal; ujian parametrik boleh dipertimbangkan'}.\n\n`;

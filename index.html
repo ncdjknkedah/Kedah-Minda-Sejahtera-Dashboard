@@ -1073,7 +1073,7 @@ function generateAIReport() {
     const d = filteredData, n = d.length;
     if (!n) return;
     const sv = d.filter(x => x.stigValid);
-    let msg = `RUMUSAN STATISTIK KERJASAMA KEDAH-UUM (N=${n})\n\n`;
+    let msg = `RUMUSAN KAJIAN STIG-9 DAN PENILAIAN PROGRAM (N=${n})\n\n`;
     if (sv.length) {
         const t = desc(sv.map(x => x.TotalStig9));
         const lvlName = STIG_LEVELS[stigLevel(t.mean)].toUpperCase();
